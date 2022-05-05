@@ -6,6 +6,7 @@
 #include "phone_forward.h"
 #include <stdint.h>
 #include <stdbool.h>
+#include <ctype.h>
 
 #define ALPHABET_SIZE   10
 
@@ -156,4 +157,25 @@ bool addForwardedNode(InitialNode* toBeForwarded, ForwardedNode* finalForward) {
 
     finalForward->forwardedNodes[(*numNodes)] = toBeForwarded;
     toBeForwarded->indexForward = (*numNodes)++;
+}
+
+int64_t checkLength(const char * number) {
+    int index = 0;
+
+    while (isdigit(number[index]) && number[index] != '\0') index++;
+
+    if (number[index] == '\0') {
+        return index;
+    }
+    else {
+        return -1;
+    }
+}
+
+bool isTerminal(int flag) {
+    return (flag && ((uint8_t)1 << TERMINAL_BIT)) != 0;
+}
+
+bool isForwardSet(int flag) {
+    return (flag && ((uint8_t)1 << FORWARD_BIT)) != 0;
 }
