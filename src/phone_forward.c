@@ -5,12 +5,16 @@
 #include "phone_forward.h"
 #include <stdint.h>
 
+#define ALPHABET_SIZE   10
+
+#define TERMINAL_BIT    0
+#define FORWARD_BIT   1
 struct ForwardedNode;
 
 typedef struct InitialNode {
     struct InitialNode* ancestor;
     struct ForwardedNode* forward;
-    struct InitialNode* alphabet[10];
+    struct InitialNode* alphabet[ALPHABET_SIZE];
     uint64_t depth;
     uint8_t terminalForwarded;
     uint64_t indexForward;
@@ -18,7 +22,7 @@ typedef struct InitialNode {
 } InitialNode;
 
 typedef struct ForwardedNode {
-    struct ForwardedNode* alphabet[10];
+    struct ForwardedNode* alphabet[ALPHABET_SIZE];
     uint8_t terminalForwarding;
     uint64_t numForwardedNodes;
     InitialNode** forwardedNodes;
@@ -49,6 +53,39 @@ PhoneForward * phfwdNew(void) {
         free(result);
 
         return NULL;
+    }
+
+    return result;
+}
+
+void setBit(uint8_t* flag, int numBitsToShift) {
+    *flag |= ((uint8_t) 1 << numBitsToShift);
+}
+
+void clearBit(uint8_t* flag, int numBitsToShift) {
+    *flag &= ~((uint8_t)1 << numBitsToShift);
+}
+
+InitialNode * initInitialNode(InitialNode* ancestor, uint64_t depth,
+                              bool isTerminal) {
+    InitialNode * result = malloc(sizeof (InitialNode));
+    if (!result) {
+        return NULL;
+    }
+
+    result->ancestor = ancestor;
+    result->forward = NULL;
+    result->depth = depth;
+    result->terminalForwarded = 0;
+    result->indexForward = 0;
+    result->howManyHavePassedThrough = 0;
+
+    for (int i = 0; i < ALPHABET_SIZE; i++) {
+        result->alphabet[i] = NULL;
+    }
+
+    if (isTerminal) {
+        setBit(&(result->terminalForwarded), TERMINAL_BIT);
     }
 
     return result;
