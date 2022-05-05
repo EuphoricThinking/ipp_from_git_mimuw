@@ -22,6 +22,7 @@ typedef struct InitialNode {
 } InitialNode;
 
 typedef struct ForwardedNode {
+    struct ForwardedNode* ancestor;
     struct ForwardedNode* alphabet[ALPHABET_SIZE];
     uint8_t terminalForwarding;
     uint64_t numForwardedNodes;
@@ -90,3 +91,23 @@ InitialNode * initInitialNode(InitialNode* ancestor, uint64_t depth,
 
     return result;
 }
+
+ForwardedNode * initForwardedNode(ForwardedNode* ancestor, bool terminal,
+                                  const char* prefix, bool isTerminal,
+                                  bool isForwarding) {
+    ForwardedNode * result = malloc(sizeof (ForwardedNode));
+    if (!result) {
+        return NULL;
+    }
+
+    result->terminalForwarding = 0;
+    if (isTerminal) {
+        setBit(&(result->terminalForwarding), TERMINAL_BIT);
+    }
+
+    if (isForwarding) {
+        setBit(&(result->terminalForwarding), FORWARD_BIT);
+    }
+
+    // prefix
+};
