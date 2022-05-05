@@ -1,6 +1,7 @@
 //
 // Created by heheszek on 05.05.22.
 //
+#include <stdlib.h>
 #include "phone_forward.h"
 #include <stdint.h>
 
@@ -29,3 +30,26 @@ typedef struct PhoneForward {
     ForwardedNode* forwardedRoot;
     InitialNode* initialRoot;
 } PhoneForward;
+
+PhoneForward * phfwdNew(void) {
+    PhoneForward * result = malloc(sizeof(PhoneForward));
+    if (!result) {
+        return NULL;
+    }
+
+    result->forwardedRoot = malloc(sizeof (ForwardedNode));
+    if (!result->forwardedRoot) {
+        free(result);
+        return NULL;
+    }
+
+    result->initialRoot = malloc(sizeof (InitialNode));
+    if (!result->initialRoot) {
+        free(result->forwardedRoot);
+        free(result);
+
+        return NULL;
+    }
+
+    return result;
+}
