@@ -2,8 +2,10 @@
 // Created by heheszek on 05.05.22.
 //
 #include <stdlib.h>
+#include <string.h>
 #include "phone_forward.h"
 #include <stdint.h>
+#include <stdbool.h>
 
 #define ALPHABET_SIZE   10
 
@@ -26,6 +28,7 @@ typedef struct ForwardedNode {
     struct ForwardedNode* alphabet[ALPHABET_SIZE];
     uint8_t terminalForwarding;
     uint64_t numForwardedNodes;
+    uint64_t numSlotsForNodes;
     InitialNode** forwardedNodes;
     char* forwardedPrefix;
     uint64_t howManyHavePassedThrough;
@@ -92,9 +95,8 @@ InitialNode * initInitialNode(InitialNode* ancestor, uint64_t depth,
     return result;
 }
 
-ForwardedNode * initForwardedNode(ForwardedNode* ancestor, bool terminal,
-                                  const char* prefix, bool isTerminal,
-                                  bool isForwarding) {
+ForwardedNode * initForwardedNode(ForwardedNode* ancestor, bool isTerminal) {
+//                                  bool isForwarding) {
     ForwardedNode * result = malloc(sizeof (ForwardedNode));
     if (!result) {
         return NULL;
@@ -105,9 +107,53 @@ ForwardedNode * initForwardedNode(ForwardedNode* ancestor, bool terminal,
         setBit(&(result->terminalForwarding), TERMINAL_BIT);
     }
 
-    if (isForwarding) {
-        setBit(&(result->terminalForwarding), FORWARD_BIT);
+//    if (isForwarding) {
+//        setBit(&(result->terminalForwarding), FORWARD_BIT);
+//    }
+
+    result->ancestor = ancestor;
+    result->forwardedPrefix = NULL;
+    result->howManyHavePassedThrough = 0;
+
+    result->numForwardedNodes = 0;
+    result->numSlotsForNodes = 0;
+    result->forwardedNodes = NULL;
+
+    for (int i = 0; i < ALPHABET_SIZE; i++) {
+        result->alphabet[i] = NULL;
     }
 
-    // prefix
+    return result;
 };
+
+bool setAsFinalForward(ForwardedNode* forwarding, const char* prefix) {
+    forwarding->forwardedPrefix = strdup(prefix);
+
+    if (!(forwarding->forwardedPrefix)) {
+        return false;
+    }
+
+    setBit(&(forwarding->terminalForwarding), FORWARD_BIT);
+
+    return true;
+}
+
+bool addForwardedNode(InitialNode* toBeForwarded, ForwardedNode* finalForward) {
+    uint64_t * slots = &(finalForward->numSlotsForNodes);
+    uint64_t * numNodes = &(finalForward->numForwardedNodes);
+
+    if (*slots <= *numNodes) {
+        uint64_t newSlots = (*slots)*2 + 1;
+        InitialNode ** newNodeArray = realloc(finalForward->forwardedNodes,
+                                              newSlots * sizeof (InitialNode*));
+        if (!newNodeArray) {
+            return false;
+        }
+
+        finalForward->forwardedNodes = newNodeArray;
+        *slots = newSlots;
+    }
+
+    finalForward->forwardedNodes[(*numNodes)] = toBeForwarded;
+    toBeForwarded->indexForward = (*numNodes)++;
+}
