@@ -51,7 +51,7 @@ typedef struct PhoneForward {
 typedef struct PhoneNumbers {
     char** numbers;
     uint64_t slots;
-    uint64_t lastIndex;
+    uint64_t lastAvailableIndex;
 } PhoneNumbers;
 
 //void setBit(uint8_t* flag, int numBitsToShift) {
@@ -511,7 +511,7 @@ PhoneNumbers * createNewPhoneNumbers() {
 
     result->numbers[0] = NULL;
     result->slots = 1;
-    result->lastIndex = 0;
+    result->lastAvailableIndex = 0;
     
     return result;
 }
@@ -587,4 +587,13 @@ void phnumDelete(PhoneNumbers *pnum) {
 
     free(pnum->numbers);
     free(pnum);
+}
+
+char const * phnumGet(PhoneNumbers const *pnum, size_t idx) {
+    if (idx >= pnum->lastAvailableIndex) {
+        return NULL;
+    }
+    else {
+        return (char const*)pnum->numbers[idx];
+    }
 }
