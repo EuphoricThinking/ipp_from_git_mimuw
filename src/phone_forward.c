@@ -271,7 +271,7 @@ bool phfwdAdd(PhoneForward *pfd, char const *num1, char const *num2) {
     if (!pfd) {
         return false;
     }
-    
+
     size_t len1 = checkLength(num1);
     if (len1 == 0) {
         return false;
@@ -404,6 +404,8 @@ void removeForwardedNodeFromInitialAndRemoveInitialFromForward(InitialNode* toDe
     clearBitForward(&(toDeforward->isForwarded));
     if (finalForward->sumForwarded == 0) {
         clearBitForward(&(finalForward->isForwarding));
+        free(finalForward->forwardedPrefix);
+        finalForward->forwardedPrefix = NULL;
     }
 
     //printf("bef forward stumps\n");
