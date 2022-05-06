@@ -400,7 +400,9 @@ void removeForwardedNodeFromInitialAndRemoveInitialFromForward(InitialNode* toDe
         clearBitForward(&(finalForward->isForwarding));
     }
 
+    printf("bef forward stumps\n");
     removeStumpsForwardedNode(finalForward);
+    printf("after forward stumps\n");
 }
 
 void removeInitialNode(InitialNode* init) {
@@ -411,8 +413,11 @@ void removeInitialNode(InitialNode* init) {
             (ancestor->filledEdges)--;
         }
 
+//        printf("bef free init prefix\n");
         free(init->initialPrefix);
-        free(init);    
+//        printf("aft free init prefix\nbef free init\n");
+        free(init);
+//        printf("aft free init\n");
     }
 }
 
@@ -437,18 +442,23 @@ void phfwdRemove(PhoneForward * pf, char const * num) {
     bool possibleToPass = true;
     InitialNode * currentInitialCore = pf->initialRoot;
     int digit;
+    printf("Remove digit ");
     while (depth < len && possibleToPass) {
         digit = getIndex(num[depth]);
+
         if (currentInitialCore->alphabet[digit]) {
+            printf("%d ", digit);
             currentInitialCore = currentInitialCore->alphabet[digit];
             depth++;
         }
         else {
+            printf("NP%d ", digit);
             possibleToPass = false;
         }
     }
-
+    printf("\n");
     if (!possibleToPass) {
+        printf("not possible\n");
         return;
     }
 
@@ -457,15 +467,19 @@ void phfwdRemove(PhoneForward * pf, char const * num) {
     InitialNode * coreAncestor = currentInitialCore->ancestor;
     InitialNode * currentAncestor;
 
-    while (currentInitial != coreAncestor) {
+//    while (currentInitial != coreAncestor) {
+    while (currentInitial->depth > coreAncestor->depth) {
         if (isForwardSet(currentInitial->isForwarded)) {
+            printf("forward removal\n");
             removeForwardedNodeFromInitialAndRemoveInitialFromForward(
                     currentInitial);
         }
         
         if (currentInitial->filledEdges == 0) {
-            currentAncestor = currentInitial;
+            currentAncestor = currentInitial->ancestor;
+//            printf("before initial remove\n");
             removeInitialNode(currentInitial);
+//            printf("after initial remove\n");
             currentInitial = currentAncestor;
         }
         else {
