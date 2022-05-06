@@ -1,6 +1,7 @@
 //
 // Created by heheszek on 05.05.22.
 //
+#define _DEFAULT_SOURCE
 #include <stdlib.h>
 #include <string.h>
 #include "phone_forward.h"
@@ -236,15 +237,15 @@ bool addPrefixInitialAndSetForward(InitialNode * init, const char* prefix) {
 
 size_t checkLength(const char * number) {
     if (!number) {
-        return -1;
+        return 0;
     }
 
     size_t index = 0;
 
     while (isdigit(number[index]) && number[index] != '\0') index++;
 
-    if (number[index] != '\0' || index == 0) {
-        return -1;
+    if (number[index] != '\0') { // || index == 0) {
+        return 0;
     }
     else {
         return index;
@@ -265,12 +266,12 @@ int getIndex(char c) {
 
 bool phfwdAdd(PhoneForward *pfd, char const *num1, char const *num2) {
     size_t len1 = checkLength(num1);
-    if (len1 == -1) {
+    if (len1 == 0) {
         return false;
     }
 
     size_t len2 = checkLength(num2);
-    if (len2 == -1) {
+    if (len2 == 0) {
         return false;
     }
 
@@ -409,7 +410,7 @@ void removeStumpsInitialNode(InitialNode * currentInitial) {
 void phfwdRemove(PhoneForward * pf, char const * num) {
     size_t len = checkLength(num);
 
-    if (len == -1) {
+    if (len == 0) {
         return;
     }
 
@@ -549,7 +550,7 @@ PhoneNumbers * phfwdGet(PhoneForward const *pf, char const* num) {
         return NULL;
     }
 
-    if (len == -1) {
+    if (len == 0) {
         return result;
     }
 
@@ -610,7 +611,7 @@ PhoneNumbers * phfwdGet(PhoneForward const *pf, char const* num) {
 }
 
 void phnumDelete(PhoneNumbers *pnum) {
-    for (int i = 0; i < pnum->lastAvailableIndex; i++) {
+    for (uint64_t i = 0; i < pnum->lastAvailableIndex; i++) {
         free(pnum->numbers[i]);
     }
 
