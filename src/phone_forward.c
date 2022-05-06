@@ -222,8 +222,7 @@ bool addPrefixInitialAndSetForward(InitialNode * init, const char* prefix) {
         return false;
     }
 
-    bool hasBeenForwarded = isForwardSet(init->isForwarded);
-    if (hasBeenForwarded) {
+    if (isForwardSet(init->isForwarded)) {
         free(init->initialPrefix);
     }
     else {
@@ -235,12 +234,12 @@ bool addPrefixInitialAndSetForward(InitialNode * init, const char* prefix) {
     return true;
 }
 
-int64_t checkLength(const char * number) {
+size_t checkLength(const char * number) {
     if (!number) {
         return -1;
     }
 
-    int index = 0;
+    size_t index = 0;
 
     while (isdigit(number[index]) && number[index] != '\0') index++;
 
@@ -345,15 +344,17 @@ bool phfwdAdd(PhoneForward *pfd, char const *num1, char const *num2) {
 }
 
 void removeForwardedNode(ForwardedNode * toDelete) {
-    ForwardedNode * ancestor = toDelete->ancestor;
-    if (ancestor) {
-        ancestor->alphabet[toDelete->edgeLeadingTo] = NULL;
-        (ancestor->filledEdges)--;
-    }
+    if (toDelete) {
+        ForwardedNode * ancestor = toDelete->ancestor;
+        if (ancestor) {
+            ancestor->alphabet[toDelete->edgeLeadingTo] = NULL;
+            (ancestor->filledEdges)--;
+        }
 
-    free(toDelete->forwardedPrefix);
-    free(toDelete->forwardedNodes);
-    free(toDelete);
+        free(toDelete->forwardedPrefix);
+        free(toDelete->forwardedNodes);
+        free(toDelete);    
+    }
 }
 
 void removeStumpsForwardedNode(ForwardedNode * currentForward) {
@@ -365,7 +366,7 @@ void removeStumpsForwardedNode(ForwardedNode * currentForward) {
     }
 }
 
-void removeForwardedNodeFromInitial(InitialNode* toDeforward) {
+void removeForwardedNodeFromInitialAndRemoveInitialFromForward(InitialNode* toDeforward) {
     ForwardedNode * finalForward = toDeforward->forwardingNode;
     uint64_t index = toDeforward->indexForward;
 
@@ -383,17 +384,20 @@ void removeForwardedNodeFromInitial(InitialNode* toDeforward) {
 }
 
 void removeInitialNode(InitialNode* init) {
-    InitialNode * ancestor = init->ancestor;
-    if (ancestor) {
-        ancestor->alphabet[init->edgeLeadingTo] = NULL;
-        (ancestor->filledEdges)--;
-    }
+    if (init) {
+        InitialNode * ancestor = init->ancestor;
+        if (ancestor) {
+            ancestor->alphabet[init->edgeLeadingTo] = NULL;
+            (ancestor->filledEdges)--;
+        }
 
-    free(init->initialPrefix);
-    free(init);
+        free(init->initialPrefix);
+        free(init);    
+    }
 }
 
 void removeStumpsInitialNode(InitialNode * currentInitial) {
+    //TODO does it crash without substitution?
     while (currentInitial && currentInitial->filledEdges == 0 &&
            !(isForwardSet(currentInitial->isForwarded))) {
                 InitialNode * currentAncestor = currentInitial->ancestor;
@@ -435,7 +439,8 @@ void phfwdRemove(PhoneForward * pf, char const * num) {
 
     while (currentInitial != coreAncestor) {
         if (isForwardSet(currentInitial->isForwarded)) {
-            removeForwardedNodeFromInitial(currentInitial);
+            removeForwardedNodeFromInitialAndRemoveInitialFromForward(
+                    currentInitial);
         }
         
         if (currentInitial->filledEdges == 0) {
@@ -496,13 +501,13 @@ void phfwdDelete(PhoneForward * pf) {
         }
 
         ForwardedNode * currentForward = pf->forwardedRoot;
-        ForwardedNode * currentForAncestor;
+        ForwardedNode * currentForwardAncestor;
 
         while (currentForward) {
             if (currentForward->filledEdges == 0) {
-                currentForAncestor = currentForward->ancestor;
+                currentForwardAncestor = currentForward->ancestor;
                 removeForwardedNode(currentForward);
-                currentForward = currentForAncestor;
+                currentForward = currentForwardAncestor;
             }
             else {
                 int *index = &(currentForward->lastChecked);
@@ -514,6 +519,8 @@ void phfwdDelete(PhoneForward * pf) {
                 currentForward = currentForward->alphabet[*index];
             }
         }
+
+        free(pf);
     }
 }
 
@@ -536,6 +543,10 @@ PhoneNumbers * createNewPhoneNumbers() {
 }
 
 PhoneNumbers * phfwdGet(PhoneForward const *pf, char const* num) {
+    if (!pf) {
+        return NULL;
+    }
+
     size_t len = checkLength(num);
     PhoneNumbers * result = createNewPhoneNumbers();
     if (!result) {
@@ -548,26 +559,25 @@ PhoneNumbers * phfwdGet(PhoneForward const *pf, char const* num) {
 
     InitialNode * lastForwardedNode = NULL;
     InitialNode * currentInitial = pf->initialRoot;
-    bool isPossible = true;
+    bool isPossibleToPass = true;
     size_t depth = 0;
     int digit;
-    while (depth < len && isPossible) {
+    while (depth < len && isPossibleToPass) {
         digit = getIndex(num[depth]);
+        if (isForwardSet(currentInitial->isForwarded)) {
+            lastForwardedNode = currentInitial;
+        }
 
         if (currentInitial->alphabet[digit]) {
-            if (isForwardSet(currentInitial->isForwarded)) {
-                lastForwardedNode = currentInitial;
-            }
-
             currentInitial = currentInitial->alphabet[digit];
             depth++;
         }
         else {
-            isPossible = false;
+            isPossibleToPass = false;
         }
     }
 
-    if (!isPossible) {
+    if (!lastForwardedNode) {
         result->numbers[0] = strdup(num);
         if (!result->numbers[0]) {
             return NULL;
@@ -576,11 +586,11 @@ PhoneNumbers * phfwdGet(PhoneForward const *pf, char const* num) {
         return result;
     }
 
-    ForwardedNode * forwardedPrefixNode = currentInitial->forwardingNode;
+    ForwardedNode * forwardedPrefixNode = lastForwardedNode->forwardingNode;
     char* finalPrefix = forwardedPrefixNode->forwardedPrefix;
 
     size_t finalPrefixLength = forwardedPrefixNode->depth;
-    size_t nonForwardedPrefixLength = currentInitial->depth;
+    size_t nonForwardedPrefixLength = lastForwardedNode->depth;
     size_t finalSuffixLength = len - nonForwardedPrefixLength;
     size_t finalLength = finalSuffixLength + finalPrefixLength + 1;
 
@@ -600,7 +610,7 @@ PhoneNumbers * phfwdGet(PhoneForward const *pf, char const* num) {
 }
 
 void phnumDelete(PhoneNumbers *pnum) {
-    for (int i = 0; i < pnum->slots; i++) {
+    for (int i = 0; i < pnum->lastAvailableIndex; i++) {
         free(pnum->numbers[i]);
     }
 
@@ -609,7 +619,7 @@ void phnumDelete(PhoneNumbers *pnum) {
 }
 
 char const * phnumGet(PhoneNumbers const *pnum, size_t idx) {
-    if (idx >= pnum->lastAvailableIndex) {
+    if (!pnum || idx >= pnum->lastAvailableIndex) {
         return NULL;
     }
     else {
