@@ -69,6 +69,10 @@ void clearBitForward(uint8_t * flag) {
     *flag &= ~(uint8_t) 1;
 }
 
+bool isForwardSet(uint8_t flag) {
+    return (flag && (uint8_t) 1) != 0;
+}
+
 InitialNode * initInitialNode(InitialNode* ancestor, uint64_t depth,
                               int edgeLeadingTo) {
  //                             bool isTerminal) {
@@ -187,28 +191,46 @@ bool addForwardedNode(InitialNode* toBeForwarded, ForwardedNode* finalForward) {
     toBeForwarded->forwardingNode = finalForward;
     (finalForward->sumForwarded)++;
 
-    setBitForward(&(toBeForwarded->isForwarded));
-    setBitForward(&(finalForward->isForwarding));
+//    setBitForward(&(toBeForwarded->isForwarded));
+//    setBitForward(&(finalForward->isForwarding));
 
     return true;
 }
 
-bool addPrefixForward(ForwardedNode* finalForward, const char* prefix) {
-    finalForward->forwardedPrefix = strdup(prefix);
+bool addPrefixForwardAndSetForward(ForwardedNode* finalForward, const char* prefix) {
+    // If it hasn't been previously set - the value of the string is the same
+    if (!isForwardSet(finalForward->isForwarding)) {
+        finalForward->forwardedPrefix = strdup(prefix);
 
-    if (!(finalForward->forwardedPrefix)) {
-        return false;
+        if (!(finalForward->forwardedPrefix)) {
+            return false;
+        }
+
+        setBitForward(&(finalForward->isForwarding));
     }
 
     return true;
 }
 
-bool addPrefixInitial(InitialNode * init, const char* prefix) {
-    init->initialPrefix = strdup(prefix);
+bool addPrefixInitialAndSetForward(InitialNode * init, const char* prefix) {
 
-    if (!(init->initialPrefix)) {
+//    init->initialPrefix = strdup(prefix);
+    // Temporary array enables saving the previous content
+    char* copiedPrefix = strdup(prefix);
+
+    if (!(copiedPrefix)) {
         return false;
     }
+
+    bool hasBeenForwarded = isForwardSet(init->isForwarded);
+    if (hasBeenForwarded) {
+        free(init->initialPrefix);
+    }
+    else {
+        setBitForward(&(init->isForwarded));
+    }
+
+    init->initialPrefix = copiedPrefix;
 
     return true;
 }
@@ -237,9 +259,6 @@ int64_t checkLength(const char * number) {
 //bool isForwardSet(int flag) {
 //    return (flag && ((uint8_t)1 << FORWARD_BIT)) != 0;
 //}
-bool isForwardSet(uint8_t flag) {
-    return (flag && (uint8_t) 1) != 0;
-}
 
 int getIndex(char c) {
     return c - '0';
@@ -317,8 +336,8 @@ bool phfwdAdd(PhoneForward *pfd, char const *num1, char const *num2) {
         return false;
     }
 
-    if (!(addPrefixForward(currentForward, num2))
-        || !(addPrefixInitial(currentInitial, num1))) {
+    if (!(addPrefixForwardAndSetForward(currentForward, num2))
+        || !(addPrefixInitialAndSetForward(currentInitial, num1))) {
         return false;
     }
 
