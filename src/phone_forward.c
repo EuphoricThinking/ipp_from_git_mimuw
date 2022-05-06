@@ -509,6 +509,7 @@ PhoneNumbers * createNewPhoneNumbers() {
         return NULL;
     }
 
+    result->numbers[0] = NULL;
     result->slots = 1;
     result->lastIndex = 0;
     
@@ -523,8 +524,6 @@ PhoneNumbers * phfwdGet(PhoneForward const *pf, char const* num) {
     }
 
     if (len == -1) {
-        result->numbers[0] = NULL;
-
         return result;
     }
 
@@ -579,4 +578,13 @@ PhoneNumbers * phfwdGet(PhoneForward const *pf, char const* num) {
     result->numbers[0] = resultingForward;
 
     return result;
+}
+
+void phnumDelete(PhoneNumbers *pnum) {
+    for (int i = 0; i < pnum->slots; i++) {
+        free(pnum->numbers[i]);
+    }
+
+    free(pnum->numbers);
+    free(pnum);
 }
