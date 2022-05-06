@@ -72,7 +72,7 @@ void clearBitForward(uint8_t * flag) {
 }
 
 bool isForwardSet(uint8_t flag) {
-    return (flag && (uint8_t) 1) != 0;
+    return (flag & (uint8_t) 1) != 0;
 }
 
 InitialNode * initInitialNode(InitialNode* ancestor, uint64_t depth,
@@ -494,17 +494,22 @@ void phfwdRemove(PhoneForward * pf, char const * num) {
                 currentInitial = currentAncestor;
             } else {
                 int *index = &(currentInitial->lastChecked);
-                while (*index < ALPHABET_SIZE &&
-                       !currentInitial->alphabet[*index]) {
+//                while (*index < ALPHABET_SIZE &&
+//                       !currentInitial->alphabet[*index]) {
+//                    (*index)++;
+//                }
+//                // TODO check in tests if can be reduced
+//                if (*index < ALPHABET_SIZE) {
+//                    currentInitial = currentInitial->alphabet[*index];
+//                } else {
+//                    *index = 0;
+//                    currentInitial = currentInitial->ancestor;
+//                }
+                while (!currentInitial->alphabet[*index]) {
                     (*index)++;
                 }
-                // TODO check in tests if can be reduced
-                if (*index < ALPHABET_SIZE) {
-                    currentInitial = currentInitial->alphabet[*index];
-                } else {
-                    *index = 0;
-                    currentInitial = currentInitial->ancestor;
-                }
+
+                currentInitial = currentInitial->alphabet[*index];
             }
         }
 
