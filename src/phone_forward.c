@@ -22,7 +22,9 @@ typedef struct InitialNode {
     uint64_t depth;
     uint8_t isForwarded;
     uint64_t indexForward;
-    uint64_t howManyHavePassedThrough;
+    uint64_t filledEdges;
+    int edgeLeadingTo;
+    int lastChecked;
     char* initialPrefix;
 } InitialNode;
 
@@ -31,11 +33,13 @@ typedef struct ForwardedNode {
     struct ForwardedNode* alphabet[ALPHABET_SIZE];
     uint8_t isForwarding;
     uint64_t numForwardedNodes;
+    uint64_t sumForwarded;
     uint64_t depth;
     uint64_t numSlotsForNodes;
+    int edgeLeadingTo;
     InitialNode** forwardedNodes;
     char* forwardedPrefix;
-    uint64_t howManyHavePassedThrough;
+    uint64_t filledEdges;
 } ForwardedNode;
 
 typedef struct PhoneForward {
@@ -59,7 +63,8 @@ void clearBitForward(uint8_t * flag) {
     *flag &= ~(uint8_t) 1;
 }
 
-InitialNode * initInitialNode(InitialNode* ancestor, uint64_t depth) {
+InitialNode * initInitialNode(InitialNode* ancestor, uint64_t depth,
+                              int edgeLeadingTo) {
  //                             bool isTerminal) {
     InitialNode * result = malloc(sizeof (InitialNode));
     if (!result) {
@@ -71,8 +76,10 @@ InitialNode * initInitialNode(InitialNode* ancestor, uint64_t depth) {
     result->depth = depth;
     result->isForwarded = 0;
     result->indexForward = 0;
-    result->howManyHavePassedThrough = 0;
+    result->filledEdges = 0;
+    result->lastChecked = 0;
     result->initialPrefix = NULL;
+    result->edgeLeadingTo = edgeLeadingTo;
 
     for (int i = 0; i < ALPHABET_SIZE; i++) {
         result->alphabet[i] = NULL;
@@ -85,7 +92,8 @@ InitialNode * initInitialNode(InitialNode* ancestor, uint64_t depth) {
     return result;
 }
 
-ForwardedNode * initForwardedNode(ForwardedNode* ancestor, uint64_t depth) {
+ForwardedNode * initForwardedNode(ForwardedNode* ancestor, uint64_t depth,
+                                  int edgeLeadingTo;) {
 //                                  bool isForwarding) {
     ForwardedNode * result = malloc(sizeof (ForwardedNode));
     if (!result) {
@@ -103,8 +111,10 @@ ForwardedNode * initForwardedNode(ForwardedNode* ancestor, uint64_t depth) {
 
     result->ancestor = ancestor;
     result->forwardedPrefix = NULL;
-    result->howManyHavePassedThrough = 0;
+    result->filledEdges = 0;
     result->depth = depth;
+    result->sumForwarded = 0;
+    result->edgeLeadingTo = edgeLeadingTo;
 
     result->numForwardedNodes = 0;
     result->numSlotsForNodes = 0;
@@ -168,6 +178,7 @@ bool addForwardedNode(InitialNode* toBeForwarded, ForwardedNode* finalForward) {
     finalForward->forwardedNodes[(*numNodes)] = toBeForwarded;
     toBeForwarded->indexForward = (*numNodes)++;
     toBeForwarded->forwardingNode = finalForward;
+    (finalForward->sumForwarded)++;
 
     setBitForward(&(toBeForwarded->isForwarded));
     setBitForward(&(finalForward->isForwarding));
@@ -243,15 +254,16 @@ bool phfwdAdd(PhoneForward *pfd, char const *num1, char const *num2) {
     int digit;
     while (depth < len1) {
         digit = getIndex(num1[depth]); //TODO check if it works
-        currentInitial->howManyHavePassedThrough++;
         
         if (!(currentInitial->alphabet[digit])) { //TODO check shortened version
-            InitialNode * newNode = initInitialNode(currentInitial, ++depth);
+            InitialNode * newNode = initInitialNode(currentInitial, ++depth, digit);
             if (!newNode) {
                 return false;
             }
 
             currentInitial->alphabet[digit] = newNode;
+            currentInitial->filledEdges++;
+
             currentInitial = newNode;
         }
         else {
@@ -259,7 +271,7 @@ bool phfwdAdd(PhoneForward *pfd, char const *num1, char const *num2) {
         }
     }
 
-//    if (currentInitial->howManyHavePassedThrough == 0) {
+//    if (currentInitial->filledEdges == 0) {
 //        setBit(&(currentInitial->forwarded), TERMINAL_BIT);
 //    }
 
@@ -271,10 +283,10 @@ bool phfwdAdd(PhoneForward *pfd, char const *num1, char const *num2) {
     
     while (depth < len2) {
         digit = getIndex(num2[depth]);
-        currentForward->howManyHavePassedThrough++;
+        currentForward->filledEdges++;
         
         if (!(currentForward->alphabet[digit])) {
-            ForwardedNode * newNode = initForwardedNode(currentForward, ++depth);
+            ForwardedNode * newNode = initForwardedNode(currentForward, ++depth, digit);
             if (!newNode) {
                 return false;
             }
@@ -299,4 +311,68 @@ bool phfwdAdd(PhoneForward *pfd, char const *num1, char const *num2) {
     }
 
     return true;
+}
+
+void removeForwardedNodeFromInitial(InitialNode* toDeforward) {
+    ForwardedNode * finalForward = toDeforward->forwardingNode;
+    uint64_t index = toDeforward->indexForward;
+
+    finalForward->forwardedNodes[index] = NULL;
+    (finalForward->sumForwarded)--;
+    toDeforward->forwardingNode = NULL;
+    toDeforward->indexForward = 0;
+
+    clearBitForward(&(toDeforward->isForwarded));
+    if (finalForward->sumForwarded == 0) {
+        clearBitForward(&(finalForward->isForwarding));
+    }
+}
+
+void removeInitialNode(InitialNode* init) {
+    free(init->initialPrefix);
+    free(init);
+}
+void phfwdRemove(PhoneForward * pf, char const * num) {
+    uint64_t len = checkLength(num);
+
+    if (len == -1) {
+        return;
+    }
+
+    uint64_t depth = 0;
+    bool possibleToPass = true;
+    InitialNode * currentInitialCore = pf->initialRoot;
+    int digit;
+    while (depth < len && possibleToPass) {
+        digit = getIndex(num[depth]);
+        if (currentInitialCore->alphabet[digit]) {
+            currentInitialCore = currentInitialCore->alphabet[digit];
+        }
+        else {
+            possibleToPass = false;
+        }
+
+        depth++;
+    }
+
+    if (!possibleToPass) {
+        return;
+    }
+
+//    uint64_t leftPathsToCheck = currentInitialCore->filledEdges;
+    InitialNode * currentInitial = currentInitialCore;
+    InitialNode * coreAncestor = currentInitialCore->ancestor;
+
+    while (leftPathsToCheck > 0) {
+        if (isForwarded(currentInitial->isForwarded)) {
+            removeForwardedNodeFromInitial(currentInitial);
+        }
+        
+        if (currentInitial->filledEdges == 0) {
+            InitialNode * ancestor = currentInitial->ancestor;
+            (ancestor->filledEdges)--;
+            ancestor->alphabet[currentInitial->edgeLeadingTo] = NULL;
+            
+        }
+    }
 }
