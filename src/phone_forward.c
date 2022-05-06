@@ -37,6 +37,7 @@ typedef struct ForwardedNode {
     uint64_t depth;
     uint64_t numSlotsForNodes;
     int edgeLeadingTo;
+    int lastChecked;
     InitialNode** forwardedNodes;
     char* forwardedPrefix;
     uint64_t filledEdges;
@@ -47,6 +48,11 @@ typedef struct PhoneForward {
     InitialNode* initialRoot;
 } PhoneForward;
 
+typedef struct PhoneNumbers {
+    char** numbers;
+    uint64_t slots;
+    uint64_t lastIndex;
+} PhoneNumbers;
 
 //void setBit(uint8_t* flag, int numBitsToShift) {
 //    *flag |= ((uint8_t) 1 << numBitsToShift);
@@ -115,6 +121,7 @@ ForwardedNode * initForwardedNode(ForwardedNode* ancestor, uint64_t depth,
     result->depth = depth;
     result->sumForwarded = 0;
     result->edgeLeadingTo = edgeLeadingTo;
+    result->lastChecked = 0;
 
     result->numForwardedNodes = 0;
     result->numSlotsForNodes = 0;
@@ -207,15 +214,19 @@ bool addPrefixInitial(InitialNode * init, const char* prefix) {
 }
 
 int64_t checkLength(const char * number) {
+    if (!number) {
+        return -1;
+    }
+
     int index = 0;
 
     while (isdigit(number[index]) && number[index] != '\0') index++;
 
-    if (number[index] == '\0') {
-        return index;
+    if (number[index] != '\0' || index == 0) {
+        return -1;
     }
     else {
-        return -1;
+        return index;
     }
 }
 
@@ -235,12 +246,12 @@ int getIndex(char c) {
 }
 
 bool phfwdAdd(PhoneForward *pfd, char const *num1, char const *num2) {
-    int64_t len1 = checkLength(num1);
+    size_t len1 = checkLength(num1);
     if (len1 == -1) {
         return false;
     }
 
-    int64_t len2 = checkLength(num2);
+    size_t len2 = checkLength(num2);
     if (len2 == -1) {
         return false;
     }
@@ -373,7 +384,7 @@ void removeStumpsInitialNode(InitialNode * currentInitial) {
 }
 
 void phfwdRemove(PhoneForward * pf, char const * num) {
-    uint64_t len = checkLength(num);
+    size_t len = checkLength(num);
 
     if (len == -1) {
         return;
@@ -387,12 +398,11 @@ void phfwdRemove(PhoneForward * pf, char const * num) {
         digit = getIndex(num[depth]);
         if (currentInitialCore->alphabet[digit]) {
             currentInitialCore = currentInitialCore->alphabet[digit];
+            depth++;
         }
         else {
             possibleToPass = false;
         }
-
-        depth++;
     }
 
     if (!possibleToPass) {
@@ -419,7 +429,7 @@ void phfwdRemove(PhoneForward * pf, char const * num) {
             while (*index < ALPHABET_SIZE && !currentInitial->alphabet[*index]) {
                 (*index)++;
             }
-
+            // TODO check in tests if can be reduced
             if (*index < ALPHABET_SIZE) {
                 currentInitial = currentInitial->alphabet[*index];
             }
@@ -431,4 +441,121 @@ void phfwdRemove(PhoneForward * pf, char const * num) {
     }
 
     removeStumpsInitialNode(currentInitial);
+}
+
+void phfwdDelete(PhoneForward * pf) {
+    if (pf) {
+        InitialNode * currentInitial = pf->initialRoot;
+        InitialNode * currentInitAncestor;
+
+        //NULL is an ancestor
+        while (currentInitial) {
+            if (currentInitial->filledEdges == 0) {
+                currentInitAncestor = currentInitial->ancestor;
+                removeInitialNode(currentInitial);
+                currentInitial = currentInitAncestor;
+            }
+            else {
+                int * index = &(currentInitial->lastChecked);
+//                while (*index < ALPHABET_SIZE && !currentInitial->alphabet[*index]) {
+//                    (*index)++;
+//                }
+                while (!currentInitial->alphabet[*index]) {
+                    (*index)++;
+                }
+
+
+                currentInitial = currentInitial->alphabet[*index];
+//                if (*index < ALPHABET_SIZE) {
+//                    currentInitial = currentInitial->alphabet[*index];
+//                }
+//                else {
+//                    *index = 0;
+//                    currentInitial =
+//                }
+            }
+        }
+
+        ForwardedNode * currentForward = pf->forwardedRoot;
+        ForwardedNode * currentForAncestor;
+
+        while (currentForward) {
+            if (currentForward->filledEdges == 0) {
+                currentForAncestor = currentForward->ancestor;
+                removeForwardedNode(currentForward);
+                currentForward = currentForAncestor;
+            }
+            else {
+                int *index = &(currentForward->lastChecked);
+
+                while(!currentForward->alphabet[*index]) {
+                    (*index)++;
+                }
+
+                currentForward = currentForward->alphabet[*index];
+            }
+        }
+    }
+}
+
+PhoneNumbers * createNewPhoneNumbers() {
+    PhoneNumbers * result = malloc(sizeof (PhoneNumbers));
+    if (!result) {
+        return NULL;
+    }
+    
+    result->numbers = malloc(sizeof (char*));
+    if (!result->numbers) {
+        return NULL;
+    }
+
+    result->slots = 1;
+    result->lastIndex = 0;
+    
+    return result;
+}
+
+PhoneNumbers * phfwdGet(PhoneForward const *pf, char const* num) {
+    size_t len = checkLength(num);
+    PhoneNumbers * result = createNewPhoneNumbers();
+    if (!result) {
+        return NULL;
+    }
+
+    if (len == -1) {
+        result->numbers[0] = NULL;
+
+        return result;
+    }
+
+    InitialNode * lastForwardedNode = NULL;
+    InitialNode * currentInitial = pf->initialRoot;
+    bool isPossible = true;
+    size_t depth = 0;
+    int digit;
+    while (depth < len && isPossible) {
+        digit = getIndex(num[depth]);
+        if (isForwardSet(currentInitial->isForwarded)) {
+            lastForwardedNode = currentInitial;
+        }
+        
+        if (currentInitial->alphabet[digit]) {
+            currentInitial = currentInitial->alphabet[digit];
+            depth++;
+        }
+        else {
+            isPossible = false;
+        }
+    }
+
+    if (!isPossible) {
+        result->numbers[0] = strdup(num);
+        if (!result->numbers[0]) {
+            return NULL;
+        }
+
+        return result;
+    }
+
+
 }
