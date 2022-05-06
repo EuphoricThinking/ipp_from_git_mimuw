@@ -329,9 +329,16 @@ void removeForwardedNodeFromInitial(InitialNode* toDeforward) {
 }
 
 void removeInitialNode(InitialNode* init) {
+    InitialNode * ancestor = init->ancestor;
+    if (ancestor) {
+        ancestor->alphabet[init->edgeLeadingTo] = NULL;
+        (ancestor->filledEdges)--;
+    }
+
     free(init->initialPrefix);
     free(init);
 }
+
 void phfwdRemove(PhoneForward * pf, char const * num) {
     uint64_t len = checkLength(num);
 
@@ -363,16 +370,29 @@ void phfwdRemove(PhoneForward * pf, char const * num) {
     InitialNode * currentInitial = currentInitialCore;
     InitialNode * coreAncestor = currentInitialCore->ancestor;
 
-    while (leftPathsToCheck > 0) {
+    while (currentInitial != coreAncestor) {
         if (isForwarded(currentInitial->isForwarded)) {
             removeForwardedNodeFromInitial(currentInitial);
         }
         
         if (currentInitial->filledEdges == 0) {
-            InitialNode * ancestor = currentInitial->ancestor;
-            (ancestor->filledEdges)--;
-            ancestor->alphabet[currentInitial->edgeLeadingTo] = NULL;
-            
+            InitialNode * ancestor = currentInitial;
+            removeInitialNode(currentInitial);
+            currentInitial = ancestor;
+        }
+        else {
+            int * index = &(currentInitial->lastChecked);
+            while (*index < ALPHABET_SIZE && !currentInitial->alphabet[*index]) {
+                (*index)++;
+            }
+
+            if (*index < ALPHABET_SIZE) {
+                currentInitial = currentInitial->alphabet[*index];
+            }
+            else {
+                *index = 0;
+                currentInitial = currentInitial->ancestor;
+            }
         }
     }
 }
