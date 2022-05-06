@@ -651,12 +651,14 @@ PhoneNumbers * phfwdGet(PhoneForward const *pf, char const* num) {
 }
 
 void phnumDelete(PhoneNumbers *pnum) {
-    for (uint64_t i = 0; i < pnum->lastAvailableIndex; i++) {
-        free(pnum->numbers[i]);
-    }
+    if (pnum) {
+        for (uint64_t i = 0; i < pnum->lastAvailableIndex; i++) {
+            free(pnum->numbers[i]);
+        }
 
-    free(pnum->numbers);
-    free(pnum);
+        free(pnum->numbers);
+        free(pnum);
+    }
 }
 
 char const * phnumGet(PhoneNumbers const *pnum, size_t idx) {
