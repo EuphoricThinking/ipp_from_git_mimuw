@@ -6,143 +6,276 @@
 #include <assert.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 
-#define MAX_LEN 23
+void printSection(char *title) {
+  printf("\n\033[1m%s\033[0m\n", title);
+}
 
-int main() {
-  char num1[MAX_LEN + 1], num2[MAX_LEN + 1];
+void printTestSuccess(int testNumber) {
+  printf("Test %i: \033[0;32mPASSED\033[0m\n", testNumber);
+}
+
+int main(/* int argc, char **argv */) {
+	/* bool testReverse = true;
+	if (argc != 1) {
+		if (strcmp(argv[0], "s"))
+			testReverse = false;
+	} */
+
   PhoneForward *pf;
   PhoneNumbers *pnum;
-printf("new\n");
+  
+  printSection("Basic tests for add and remove");
+  pf = phfwdNew();
+  
+  // Add one number
+  assert(phfwdAdd(pf, "234", "23") == true);
+  pnum = phfwdGet(pf, "23499");
+  assert(strcmp(phnumGet(pnum, 0), "2399") == 0);
+  phnumDelete(pnum);
+  printTestSuccess(1);
+
+  // Redirect it to another
+  assert(phfwdAdd(pf, "234", "11") == true);
+  pnum = phfwdGet(pf, "23499");
+  assert(strcmp(phnumGet(pnum, 0), "1199") == 0);
+  assert(phnumGet(pnum, 1) == NULL);
+  phnumDelete(pnum);
+  printTestSuccess(2);
+  
+  // Add a few overlapping ones (shorter and longer)
+  assert(phfwdAdd(pf, "23", "99") == true);
+  assert(phfwdAdd(pf, "23788", "34") == true);
+  assert(phfwdAdd(pf, "2376", "68") == true);
+  pnum = phfwdGet(pf, "23788123");
+  assert(strcmp(phnumGet(pnum, 0), "34123") == 0);
+  assert(phnumGet(pnum, 1) == NULL);
+  phnumDelete(pnum);
+  pnum = phfwdGet(pf, "2376123");
+  assert(strcmp(phnumGet(pnum, 0), "68123") == 0);
+  assert(phnumGet(pnum, 1) == NULL);
+  phnumDelete(pnum);
+  pnum = phfwdGet(pf, "237777");
+  assert(strcmp(phnumGet(pnum, 0), "997777") == 0);
+  assert(phnumGet(pnum, 1) == NULL);
+  phnumDelete(pnum);
+  printTestSuccess(3);
+
+  // Redirect to a longer prefix
+  assert(phfwdAdd(pf, "987", "123456789") == true);
+  pnum = phfwdGet(pf, "9871");
+  assert(strcmp(phnumGet(pnum, 0), "1234567891") == 0);
+  phnumDelete(pnum);
+  pnum = phfwdGet(pf, "987");
+  assert(strcmp(phnumGet(pnum, 0), "123456789") == 0);
+  phnumDelete(pnum);
+  printTestSuccess(4);
+
+  // Ask for non-existent numbers to be redirected
+  pnum = phfwdGet(pf, "98");
+  assert(strcmp(phnumGet(pnum, 0), "98") == 0);
+  phnumDelete(pnum);
+  pnum = phfwdGet(pf, "4827462");
+  assert(strcmp(phnumGet(pnum, 0), "4827462") == 0);
+  phnumDelete(pnum);
+  printTestSuccess(5);
+
+  // Remove single forward
+  phfwdRemove(pf, "23788");
+  pnum = phfwdGet(pf, "23788");
+  assert(strcmp(phnumGet(pnum, 0), "99788") == 0);
+  phnumDelete(pnum);
+  printTestSuccess(6);
+
+  // Remove a prefix that matches multiple forwards
+  phfwdRemove(pf, "23");
+  pnum = phfwdGet(pf, "23123");
+  assert(strcmp(phnumGet(pnum, 0), "23123") == 0);
+  phnumDelete(pnum);
+  pnum = phfwdGet(pf, "2376123");
+  assert(strcmp(phnumGet(pnum, 0), "2376123") == 0);
+  phnumDelete(pnum);
+  printTestSuccess(7);
+
+  // Remove non-existent forward
+  phfwdRemove(pf, "23");
+  pnum = phfwdGet(pf, "23123");
+  assert(strcmp(phnumGet(pnum, 0), "23123") == 0);
+  phnumDelete(pnum);
+  pnum = phfwdGet(pf, "000000");
+  assert(strcmp(phnumGet(pnum, 0), "000000") == 0);
+  phnumDelete(pnum);
+  printTestSuccess(8);
+
+  phfwdDelete(pf);
+
+  printSection("Incorrect input");
   pf = phfwdNew();
 
-  strcpy(num1, "123");
-  strcpy(num2, "9");
-  assert(phfwdAdd(pf, num1, num2) == true);
-  memset(num1, 0, sizeof num1);
-  memset(num2, 0, sizeof num2);
-printf("adteradd\n");
-  pnum = phfwdGet(pf, "1234");
-//  printf("res|%s|\n", pnum);
-  assert(strcmp(phnumGet(pnum, 0), "94") == 0);
-  assert(phnumGet(pnum, 1) == NULL);
-  phnumDelete(pnum);
+  // (Delete)
+  phfwdDelete(NULL);
 
-  pnum = phfwdGet(pf, "12");
-  assert(strcmp(phnumGet(pnum, 0), "12") == 0);
-  phnumDelete(pnum);
+  // (Add)
+  assert(phfwdAdd(pf, "123", "") == false);
+  printTestSuccess(9);
+  assert(phfwdAdd(pf, "123", "a") == false);
+  printTestSuccess(10);
+  assert(phfwdAdd(pf, "123", "94gs") == false);
+  printTestSuccess(11);
+  assert(phfwdAdd(pf, "123", "as76") == false);
+  printTestSuccess(12);
+  assert(phfwdAdd(pf, "123", "%") == false);
+  printTestSuccess(13);
+  assert(phfwdAdd(pf, "123", "?!@") == false);
+  printTestSuccess(14);
+  assert(phfwdAdd(pf, "123", "<<>>") == false);
+  printTestSuccess(15);
+  
+  assert(phfwdAdd(pf, "", "123") == false);
+  printTestSuccess(16);
+  assert(phfwdAdd(pf, "a", "123") == false);
+  printTestSuccess(17);
+  assert(phfwdAdd(pf, "94gs", "123") == false);
+  printTestSuccess(18);
+  assert(phfwdAdd(pf, "as76", "123") == false);
+  printTestSuccess(19);
+  assert(phfwdAdd(pf, "%", "123") == false);
+  printTestSuccess(20);
+  assert(phfwdAdd(pf, "?!@", "123") == false);
+  printTestSuccess(21);
+  assert(phfwdAdd(pf, "<<>>", "123") == false);
+  printTestSuccess(22);
 
-  strcpy(num1, "123456");
-  strcpy(num2, "777777");
-  assert(phfwdAdd(pf, num1, num2) == true);
+  assert(phfwdAdd(pf, "123", "123") == false);
+  printTestSuccess(23);
+  assert(phfwdAdd(NULL, "123", "123") == false);
+  printTestSuccess(24);
+  assert(phfwdAdd(pf, "123", NULL) == false);
+  printTestSuccess(25);
+  assert(phfwdAdd(pf, NULL, "123") == false);
+  printTestSuccess(26);
 
-  pnum = phfwdGet(pf, "12345");
-  assert(strcmp(phnumGet(pnum, 0), "945") == 0);
-  phnumDelete(pnum);
-
-  pnum = phfwdGet(pf, "123456");
-  assert(strcmp(phnumGet(pnum, 0), "777777") == 0);
-  phnumDelete(pnum);
-
-  pnum = phfwdGet(pf, "997");
-  assert(strcmp(phnumGet(pnum, 0), "997") == 0);
-  phnumDelete(pnum);
-
-  assert(phfwdAdd(pf, "431", "432") == true);
-  assert(phfwdAdd(pf, "432", "433") == true);
-  pnum = phfwdGet(pf, "431");
-  assert(strcmp(phnumGet(pnum, 0), "432") == 0);
-  phnumDelete(pnum);
-  pnum = phfwdGet(pf, "432");
-  assert(strcmp(phnumGet(pnum, 0), "433") == 0);
-  phnumDelete(pnum);
-
-  pnum = phfwdReverse(pf, "432");
-  if (pnum) printf("FUCK\n");
-  else printf("NOT FUCK NULL\n");
-//  assert(strcmp(phnumGet(pnum, 0), "431") == 0);
-//  assert(strcmp(phnumGet(pnum, 1), "432") == 0);
-//  assert(phnumGet(pnum, 2) == NULL);
-  phnumDelete(pnum);
-
-  pnum = phfwdReverse(pf, "433");
-  if (pnum) printf("NOT FUCK\n");
-//  assert(strcmp(phnumGet(pnum, 0), "432") == 0);
-//  assert(strcmp(phnumGet(pnum, 1), "433") == 0);
-//  assert(phnumGet(pnum, 2) == NULL);
-  phnumDelete(pnum);
-
-  pnum = phfwdReverse(pf, "987654321");
-//  assert(strcmp(phnumGet(pnum, 0), "12387654321") == 0);
-//  assert(strcmp(phnumGet(pnum, 1), "987654321") == 0);
-  assert(phnumGet(pnum, 2) == NULL);
-  phnumDelete(pnum);
-
-  phfwdRemove(pf, "12");
-
-  pnum = phfwdGet(pf, "123456");
-  assert(strcmp(phnumGet(pnum, 0), "123456") == 0);
-  phnumDelete(pnum);
-
-  pnum = phfwdReverse(pf, "987654321");
-//  assert(strcmp(phnumGet(pnum, 0), "987654321") == 0);
-  assert(phnumGet(pnum, 1) == NULL);
-  phnumDelete(pnum);
-
-  assert(phfwdAdd(pf, "567", "0") == true);
-  assert(phfwdAdd(pf, "5678", "08") == true);
-
-  pnum = phfwdReverse(pf, "08");
-//  assert(strcmp(phnumGet(pnum, 0), "08") == 0);
-//  assert(strcmp(phnumGet(pnum, 1), "5678") == 0);
-  assert(phnumGet(pnum, 2) == NULL);
-  phnumDelete(pnum);
-
-  assert(phfwdAdd(pf, "A", "1") == false);
-  assert(phfwdAdd(pf, "1", "A") == false);
-
-  phfwdRemove(pf, "");
+  // (Remove)
+  phfwdRemove(NULL, "123");
+  printTestSuccess(27);
   phfwdRemove(pf, NULL);
+  printTestSuccess(28);
+  phfwdRemove(pf, "");
+  printTestSuccess(29);
+  phfwdRemove(pf, "94bs");
+  printTestSuccess(30);
+  phfwdRemove(pf, "abc");
+  printTestSuccess(31);
+  phfwdRemove(pf, ";");
+  printTestSuccess(32);
+  phfwdRemove(pf, "<>");
+  printTestSuccess(33);
+  phfwdRemove(pf, "?!");
+  printTestSuccess(34);
 
-  pnum = phfwdGet(pf, "A");
+  // (Get)
+  assert(phfwdGet(NULL, "123") == NULL);
+  printTestSuccess(35);
+  pnum = phfwdGet(pf, NULL);
+  assert(pnum != NULL);
   assert(phnumGet(pnum, 0) == NULL);
   phnumDelete(pnum);
-
-  pnum = phfwdReverse(pf, "A");
+  printTestSuccess(36);
+  pnum = phfwdGet(pf, "");
+  assert(pnum != NULL);
   assert(phnumGet(pnum, 0) == NULL);
   phnumDelete(pnum);
-
-  phfwdAdd(pf, "12", "123");
-  pnum = phfwdGet(pf, "123");
-  assert(strcmp(phnumGet(pnum, 0), "1233") == 0);
+  printTestSuccess(37);
+  pnum = phfwdGet(pf, "94bs");
+  assert(pnum != NULL);
+  assert(phnumGet(pnum, 0) == NULL);
   phnumDelete(pnum);
-
-  phfwdAdd(pf, "2", "4");
-  phfwdAdd(pf, "23", "4");
-  pnum = phfwdReverse(pf, "434");
-//  assert(strcmp(phnumGet(pnum, 0), "2334") == 0);
-//  assert(strcmp(phnumGet(pnum, 1), "234") == 0);
-//  assert(strcmp(phnumGet(pnum, 2), "434") == 0);
-  assert(phnumGet(pnum, 3) == NULL);
+  printTestSuccess(38);
+  pnum = phfwdGet(pf, "abc");
+  assert(pnum != NULL);
+  assert(phnumGet(pnum, 0) == NULL);
   phnumDelete(pnum);
+  printTestSuccess(39);
+  pnum = phfwdGet(pf, ";");
+  assert(pnum != NULL);
+  assert(phnumGet(pnum, 0) == NULL);
+  phnumDelete(pnum);
+  printTestSuccess(40);
+  pnum = phfwdGet(pf, "<>");
+  assert(pnum != NULL);
+  assert(phnumGet(pnum, 0) == NULL);
+  phnumDelete(pnum);
+  printTestSuccess(41);
+  pnum = phfwdGet(pf, "?!");
+  assert(pnum != NULL);
+  assert(phnumGet(pnum, 0) == NULL);
+  phnumDelete(pnum);
+  printTestSuccess(42);
 
   phfwdDelete(pf);
-  pnum = NULL;
-  phnumDelete(pnum);
-  pf = NULL;
-  phfwdDelete(pf);
 
+  // This tests if any global variables are used
+  printSection("Testing two structs");
+  PhoneForward *pf1 = phfwdNew();
+  PhoneForward *pf2 = phfwdNew();
+
+  assert(phfwdAdd(pf1, "123", "789") == true);
+  assert(phfwdAdd(pf2, "456", "321") == true);
+  PhoneNumbers *pnum1 = phfwdGet(pf1, "123456");
+  PhoneNumbers *pnum2 = phfwdGet(pf2, "456890");
+  assert(strcmp(phnumGet(pnum1, 0), "789456") == 0);
+  assert(strcmp(phnumGet(pnum2, 0), "321890") == 0);
+  phnumDelete(pnum1);
+  phnumDelete(pnum2);
+  printTestSuccess(43);
+  phfwdRemove(pf2, "456");
+  pnum1 = phfwdGet(pf1, "123456");
+  pnum2 = phfwdGet(pf2, "456890");
+  assert(strcmp(phnumGet(pnum1, 0), "789456") == 0);
+  assert(strcmp(phnumGet(pnum2, 0), "456890") == 0);
+  phnumDelete(pnum1);
+  phnumDelete(pnum2);
+  printTestSuccess(44);
+
+  phfwdDelete(pf2);
+  pnum1 = phfwdGet(pf1, "123456");
+  assert(strcmp(phnumGet(pnum1, 0), "789456") == 0);
+  phnumDelete(pnum1);
+  phfwdDelete(pf1);
+  printTestSuccess(45);
+  
+  printSection("Different tests");
   pf = phfwdNew();
-  phfwdAdd(pf, "1234", "76");
-  pnum = phfwdGet(pf, "1234581");
-  assert(strcmp(phnumGet(pnum, 0), "76581") == 0);
-  phnumDelete(pnum);
-  pnum = phfwdGet(pf, "7581");
-  assert(strcmp(phnumGet(pnum, 0), "7581") == 0);
-  phnumDelete(pnum);
-  pnum = phfwdReverse(pf, "7581");
-//  assert(strcmp(phnumGet(pnum, 0), "7581") == 0);
-  assert(phnumGet(pnum, 1) == NULL);
-  phnumDelete(pnum);
+  char *number = calloc(4, sizeof(char));
+  if (number != NULL) {
+    number[0] = '8';
+    number[1] = '8';
+    number[2] = '8';
+    number[3] = '\0';
+    
+    assert(phfwdAdd(pf, "1234", number) == true);
+    pnum = phfwdGet(pf, "123456");
+    assert(strcmp(phnumGet(pnum, 0), "88856") == 0);
+    assert(phnumGet(pnum, 1) == NULL);
+    
+    free(number);
+    assert(strcmp(phnumGet(pnum, 0), "88856") == 0);
+    assert(phnumGet(pnum, 1) == NULL);
+    phnumDelete(pnum);
+    pnum = phfwdGet(pf, "123456");
+    assert(strcmp(phnumGet(pnum, 0), "88856") == 0);
+    assert(phnumGet(pnum, 1) == NULL);
+    phnumDelete(pnum);
+  }
   phfwdDelete(pf);
+  printTestSuccess(46);
+
+  // This tests if branches with no numbers are deleted in the tree
+  // printSection("Testing if structure is correctly free'd on removal of items");
+  // TODO
+
+  // This tests if a tree is used and will fail for an array approach
+  // printSection("Testing structure optimized for overlapping numbers");
+  // TODO
 }

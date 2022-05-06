@@ -381,7 +381,9 @@ void removeStumpsForwardedNode(ForwardedNode * currentForward) {
     while (currentForward && currentForward->filledEdges == 0
             && currentForward->sumForwarded == 0) {
                 ForwardedNode * currentAncestor = currentForward->ancestor;
-                removeForwardedNode(currentForward);
+                if (currentAncestor) {
+                    removeForwardedNode(currentForward);
+                }
                 currentForward = currentAncestor;
     }
 }
@@ -421,12 +423,15 @@ void removeInitialNode(InitialNode* init) {
     }
 }
 
-void removeStumpsInitialNode(InitialNode * currentInitial) {
+void removeStumpsInitialNode(InitialNode * init) {//currentInitial) {
     //TODO does it crash without substitution?
+    InitialNode * currentInitial = init;
     while (currentInitial && currentInitial->filledEdges == 0 &&
            !(isForwardSet(currentInitial->isForwarded))) {
                 InitialNode * currentAncestor = currentInitial->ancestor;
-                removeInitialNode(currentInitial);
+                if (currentAncestor) {
+                    removeInitialNode(currentInitial);
+                }
                 currentInitial = currentAncestor;
     }
 }
@@ -467,8 +472,8 @@ void phfwdRemove(PhoneForward * pf, char const * num) {
         InitialNode *coreAncestor = currentInitialCore->ancestor;
         InitialNode *currentAncestor;
 
-//    while (currentInitial != coreAncestor) {
-        while (currentInitial->depth > coreAncestor->depth) {
+        while (currentInitial != coreAncestor) {
+//        while (currentInitial->depth > coreAncestor->depth) {
             if (isForwardSet(currentInitial->isForwarded)) {
                 //printf("forward removal\n");
                 removeForwardedNodeFromInitialAndRemoveInitialFromForward(
@@ -506,12 +511,15 @@ void phfwdDelete(PhoneForward * pf) {
         InitialNode * currentInitial = pf->initialRoot;
         InitialNode * currentInitAncestor;
 
+        printf("before initial deletion\n");
         //NULL is an ancestor
         while (currentInitial) {
             if (currentInitial->filledEdges == 0) {
                 currentInitAncestor = currentInitial->ancestor;
+//                printf("before first removal\n");
                 removeInitialNode(currentInitial);
                 currentInitial = currentInitAncestor;
+//                printf("After first removal\n");
             }
             else {
                 int * index = &(currentInitial->lastChecked);
@@ -522,18 +530,19 @@ void phfwdDelete(PhoneForward * pf) {
                     (*index)++;
                 }
 
-
+//                printf("before passing to another\n");
                 currentInitial = currentInitial->alphabet[*index];
 //                if (*index < ALPHABET_SIZE) {
 //                    currentInitial = currentInitial->alphabet[*index];
 //                }
 //                else {
 //                    *index = 0;
-//                    currentInitial =
+//                    currentInitial = currentInitial->ancestor;
 //                }
             }
         }
 
+        printf("deleted initial\n");
         ForwardedNode * currentForward = pf->forwardedRoot;
         ForwardedNode * currentForwardAncestor;
 
@@ -601,8 +610,12 @@ PhoneNumbers * phfwdGet(PhoneForward const *pf, char const* num) {
     size_t depth = 0;
     int digit;
     //printf("digit: ");
-    while (depth < len && isPossibleToPass) {
+    while (depth < len && isPossibleToPass && currentInitial) {
         digit = getIndex(num[depth]);
+        printf("depth %ld\n", depth);
+        printf("root: %p\n", pf->initialRoot);
+        if (!pf->initialRoot) printf("ITS NULL\n");
+        printf("aft\n");
         if (isForwardSet(currentInitial->isForwarded)) {
             lastForwardedNode = currentInitial;
         }
