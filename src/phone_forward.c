@@ -8,6 +8,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <ctype.h>
+#include <stdio.h>
 
 #define ALPHABET_SIZE   10
 
@@ -538,7 +539,7 @@ PhoneNumbers * createNewPhoneNumbers() {
 
     result->numbers[0] = NULL;
     result->slots = 1;
-    result->lastAvailableIndex = 0;
+    result->lastAvailableIndex = 1;
     
     return result;
 }
@@ -547,14 +548,17 @@ PhoneNumbers * phfwdGet(PhoneForward const *pf, char const* num) {
     size_t len = checkLength(num);
     PhoneNumbers * result = createNewPhoneNumbers();
     if (!result) {
+        printf("phonenumbers malloc error\n");
         return NULL;
     }
 
     if (len == 0) {
+        printf("entrystring error\n");
         return result;
     }
 
     if (!pf) {
+        printf("struct is null\n");
         return NULL;
     }
 
@@ -579,8 +583,10 @@ PhoneNumbers * phfwdGet(PhoneForward const *pf, char const* num) {
     }
 
     if (!lastForwardedNode) {
+        printf("not found\n");
         result->numbers[0] = strdup(num);
         if (!result->numbers[0]) {
+            printf("not found, malloc error\n");
             return NULL;
         }
 
@@ -597,6 +603,7 @@ PhoneNumbers * phfwdGet(PhoneForward const *pf, char const* num) {
 
     char* resultingForward = malloc(finalLength);
     if (!resultingForward) {
+        printf("malloc resutingforward\n");
         return NULL;
     }
 
@@ -606,6 +613,8 @@ PhoneNumbers * phfwdGet(PhoneForward const *pf, char const* num) {
     resultingForward[finalLength - 1] = '\0';
 
     result->numbers[0] = resultingForward;
+    printf("found |%s|\n", resultingForward);
+    printf("from result %s\n", result->numbers[0]);
 
     return result;
 }
@@ -624,6 +633,7 @@ char const * phnumGet(PhoneNumbers const *pnum, size_t idx) {
         return NULL;
     }
     else {
+        printf("I am here\n");
         return (char const*)pnum->numbers[idx];
     }
 }
