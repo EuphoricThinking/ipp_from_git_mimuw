@@ -40,28 +40,6 @@ typedef struct PhoneForward {
     InitialNode* initialRoot;
 } PhoneForward;
 
-PhoneForward * phfwdNew(void) {
-    PhoneForward * result = malloc(sizeof(PhoneForward));
-    if (!result) {
-        return NULL;
-    }
-
-    result->forwardedRoot = malloc(sizeof (ForwardedNode));
-    if (!result->forwardedRoot) {
-        free(result);
-        return NULL;
-    }
-
-    result->initialRoot = malloc(sizeof (InitialNode));
-    if (!result->initialRoot) {
-        free(result->forwardedRoot);
-        free(result);
-
-        return NULL;
-    }
-
-    return result;
-}
 
 void setBit(uint8_t* flag, int numBitsToShift) {
     *flag |= ((uint8_t) 1 << numBitsToShift);
@@ -127,6 +105,25 @@ ForwardedNode * initForwardedNode(ForwardedNode* ancestor, bool isTerminal) {
     return result;
 };
 
+PhoneForward * phfwdNew(void) {
+    PhoneForward * result = malloc(sizeof(PhoneForward));
+    if (!result) {
+        return NULL;
+    }
+
+    result->forwardedRoot = initForwardedNode(NULL, false);
+    if (!result->forwardedRoot) {
+        return NULL;
+    }
+
+    result->initialRoot = initInitialNode(NULL, 0, false);
+    if (!result->initialRoot) {
+        return NULL;
+    }
+
+    return result;
+}
+
 bool setAsFinalForward(ForwardedNode* forwarding, const char* prefix) {
     forwarding->forwardedPrefix = strdup(prefix);
 
@@ -178,4 +175,20 @@ bool isTerminal(int flag) {
 
 bool isForwardSet(int flag) {
     return (flag && ((uint8_t)1 << FORWARD_BIT)) != 0;
+}
+
+bool phfwdAdd(PhoneForward *pfd, char const *num1, char const *num2) {
+    int64_t len1 = checkLength(num1);
+    if (len1 == -1) {
+        return false;
+    }
+
+    int64_t len2 = checkLength(num2);
+    if (len2 == -1) {
+        return false;
+    }
+
+    if (strcmp(num1, num2) == 0) {
+        return false;
+    }
 }
