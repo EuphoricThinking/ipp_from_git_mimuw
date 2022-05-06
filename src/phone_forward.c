@@ -209,7 +209,7 @@ bool addPrefixForwardAndSetForward(ForwardedNode* finalForward, const char* pref
         }
 
         setBitForward(&(finalForward->isForwarding));
-        printf("FPREF %s\n", prefix);
+        //printf("FPREF %s\n", prefix);
     }
 
     return true;
@@ -267,7 +267,7 @@ int getIndex(char c) {
 }
 
 bool phfwdAdd(PhoneForward *pfd, char const *num1, char const *num2) {
-    printf("to be forwarded: %s   ->  %s\n", num1, num2);
+    //printf("to be forwarded: %s   ->  %s\n", num1, num2);
     size_t len1 = checkLength(num1);
     if (len1 == 0) {
         return false;
@@ -285,7 +285,7 @@ bool phfwdAdd(PhoneForward *pfd, char const *num1, char const *num2) {
     uint64_t depth = 0;
     InitialNode * currentInitial = pfd->initialRoot;
     int digit;
-    printf("ADD digit: ");
+    //printf("ADD digit: ");
     while (depth < len1) {
         digit = getIndex(num1[depth]); //TODO check if it works
         
@@ -295,28 +295,28 @@ bool phfwdAdd(PhoneForward *pfd, char const *num1, char const *num2) {
                 return false;
             }
 
-            printf("A%d ", digit);
+            //printf("A%d ", digit);
             currentInitial->alphabet[digit] = newNode;
             currentInitial->filledEdges++;
 
             currentInitial = newNode;
         }
         else {
-            printf("W%d ", digit);
+            //printf("W%d ", digit);
             currentInitial = currentInitial->alphabet[digit];
             depth++;
         }
     }
 
-    printf("\n\n");
+    //printf("\n\n");
 
-    printf("root ");
+    //printf("root ");
     for (int i = 0; i < ALPHABET_SIZE; i++) {
         if (pfd->initialRoot->alphabet[i]) {
-            printf("%d ", i);
+            //printf("%d ", i);
         }
     }
-    printf("\n after root \n");
+    //printf("\n after root \n");
 //    if (currentInitial->filledEdges == 0) {
 //        setBit(&(currentInitial->forwarded), TERMINAL_BIT);
 //    }
@@ -326,7 +326,7 @@ bool phfwdAdd(PhoneForward *pfd, char const *num1, char const *num2) {
 
     depth = 0;
     ForwardedNode * currentForward = pfd->forwardedRoot;
-    printf("F digit: ");
+    //printf("F digit: ");
     while (depth < len2) {
         digit = getIndex(num2[depth]);
         
@@ -335,20 +335,20 @@ bool phfwdAdd(PhoneForward *pfd, char const *num1, char const *num2) {
             if (!newNode) {
                 return false;
             }
-            printf("A%d ", digit);
+            //printf("A%d ", digit);
             currentForward->alphabet[digit] = newNode;
             currentForward->filledEdges++;
             
             currentForward = newNode;
         }
         else {
-            printf("W%d ", digit);
+            //printf("W%d ", digit);
             currentForward = currentForward->alphabet[digit];
             depth++;
         }
     }
 
-    printf("\n");
+    //printf("\n");
 //    setBitForward(&(currentForward->ISforwarding));
 
     if (!addForwardedNode(currentInitial, currentForward)) {
@@ -400,9 +400,9 @@ void removeForwardedNodeFromInitialAndRemoveInitialFromForward(InitialNode* toDe
         clearBitForward(&(finalForward->isForwarding));
     }
 
-    printf("bef forward stumps\n");
+    //printf("bef forward stumps\n");
     removeStumpsForwardedNode(finalForward);
-    printf("after forward stumps\n");
+    //printf("after forward stumps\n");
 }
 
 void removeInitialNode(InitialNode* init) {
@@ -413,11 +413,11 @@ void removeInitialNode(InitialNode* init) {
             (ancestor->filledEdges)--;
         }
 
-//        printf("bef free init prefix\n");
+//        //printf("bef free init prefix\n");
         free(init->initialPrefix);
-//        printf("aft free init prefix\nbef free init\n");
+//        //printf("aft free init prefix\nbef free init\n");
         free(init);
-//        printf("aft free init\n");
+//        //printf("aft free init\n");
     }
 }
 
@@ -432,73 +432,73 @@ void removeStumpsInitialNode(InitialNode * currentInitial) {
 }
 
 void phfwdRemove(PhoneForward * pf, char const * num) {
-    size_t len = checkLength(num);
+    if (pf) {
+        size_t len = checkLength(num);
 
-    if (len == 0) {
-        return;
-    }
-
-    uint64_t depth = 0;
-    bool possibleToPass = true;
-    InitialNode * currentInitialCore = pf->initialRoot;
-    int digit;
-    printf("Remove digit ");
-    while (depth < len && possibleToPass) {
-        digit = getIndex(num[depth]);
-
-        if (currentInitialCore->alphabet[digit]) {
-            printf("%d ", digit);
-            currentInitialCore = currentInitialCore->alphabet[digit];
-            depth++;
+        if (len == 0) {
+            return;
         }
-        else {
-            printf("NP%d ", digit);
-            possibleToPass = false;
+
+        uint64_t depth = 0;
+        bool possibleToPass = true;
+        InitialNode *currentInitialCore = pf->initialRoot;
+        int digit;
+        //printf("Remove digit ");
+        while (depth < len && possibleToPass) {
+            digit = getIndex(num[depth]);
+
+            if (currentInitialCore->alphabet[digit]) {
+                //printf("%d ", digit);
+                currentInitialCore = currentInitialCore->alphabet[digit];
+                depth++;
+            } else {
+                //printf("NP%d ", digit);
+                possibleToPass = false;
+            }
         }
-    }
-    printf("\n");
-    if (!possibleToPass) {
-        printf("not possible\n");
-        return;
-    }
+        //printf("\n");
+        if (!possibleToPass) {
+            //printf("not possible\n");
+            return;
+        }
 
 //    uint64_t leftPathsToCheck = currentInitialCore->filledEdges;
-    InitialNode * currentInitial = currentInitialCore;
-    InitialNode * coreAncestor = currentInitialCore->ancestor;
-    InitialNode * currentAncestor;
+        InitialNode *currentInitial = currentInitialCore;
+        InitialNode *coreAncestor = currentInitialCore->ancestor;
+        InitialNode *currentAncestor;
 
 //    while (currentInitial != coreAncestor) {
-    while (currentInitial->depth > coreAncestor->depth) {
-        if (isForwardSet(currentInitial->isForwarded)) {
-            printf("forward removal\n");
-            removeForwardedNodeFromInitialAndRemoveInitialFromForward(
-                    currentInitial);
-        }
-        
-        if (currentInitial->filledEdges == 0) {
-            currentAncestor = currentInitial->ancestor;
-//            printf("before initial remove\n");
-            removeInitialNode(currentInitial);
-//            printf("after initial remove\n");
-            currentInitial = currentAncestor;
-        }
-        else {
-            int * index = &(currentInitial->lastChecked);
-            while (*index < ALPHABET_SIZE && !currentInitial->alphabet[*index]) {
-                (*index)++;
+        while (currentInitial->depth > coreAncestor->depth) {
+            if (isForwardSet(currentInitial->isForwarded)) {
+                //printf("forward removal\n");
+                removeForwardedNodeFromInitialAndRemoveInitialFromForward(
+                        currentInitial);
             }
-            // TODO check in tests if can be reduced
-            if (*index < ALPHABET_SIZE) {
-                currentInitial = currentInitial->alphabet[*index];
-            }
-            else {
-                *index = 0;
-                currentInitial = currentInitial->ancestor;
-            }
-        }
-    }
 
-    removeStumpsInitialNode(currentInitial);
+            if (currentInitial->filledEdges == 0) {
+                currentAncestor = currentInitial->ancestor;
+//            //printf("before initial remove\n");
+                removeInitialNode(currentInitial);
+//            //printf("after initial remove\n");
+                currentInitial = currentAncestor;
+            } else {
+                int *index = &(currentInitial->lastChecked);
+                while (*index < ALPHABET_SIZE &&
+                       !currentInitial->alphabet[*index]) {
+                    (*index)++;
+                }
+                // TODO check in tests if can be reduced
+                if (*index < ALPHABET_SIZE) {
+                    currentInitial = currentInitial->alphabet[*index];
+                } else {
+                    *index = 0;
+                    currentInitial = currentInitial->ancestor;
+                }
+            }
+        }
+
+        removeStumpsInitialNode(currentInitial);
+    }
 }
 
 void phfwdDelete(PhoneForward * pf) {
@@ -577,21 +577,21 @@ PhoneNumbers * createNewPhoneNumbers() {
 }
 
 PhoneNumbers * phfwdGet(PhoneForward const *pf, char const* num) {
-    printf("original: %s\n", num);
+    //printf("original: %s\n", num);
     size_t len = checkLength(num);
     PhoneNumbers * result = createNewPhoneNumbers();
     if (!pf) {
-        printf("struct is null\n");
+        //printf("struct is null\n");
         return NULL;
     }
 
     if (!result) {
-        printf("phonenumbers malloc error\n");
+        //printf("phonenumbers malloc error\n");
         return NULL;
     }
 
     if (len == 0) {
-        printf("entrystring error\n");
+        //printf("entrystring error\n");
         return result;
     }
 
@@ -600,7 +600,7 @@ PhoneNumbers * phfwdGet(PhoneForward const *pf, char const* num) {
     bool isPossibleToPass = true;
     size_t depth = 0;
     int digit;
-    printf("digit: ");
+    //printf("digit: ");
     while (depth < len && isPossibleToPass) {
         digit = getIndex(num[depth]);
         if (isForwardSet(currentInitial->isForwarded)) {
@@ -608,7 +608,7 @@ PhoneNumbers * phfwdGet(PhoneForward const *pf, char const* num) {
         }
 
         if (currentInitial->alphabet[digit]) {
-            printf("%d ", digit);
+            //printf("%d ", digit);
             currentInitial = currentInitial->alphabet[digit];
             depth++;
         }
@@ -616,9 +616,9 @@ PhoneNumbers * phfwdGet(PhoneForward const *pf, char const* num) {
             isPossibleToPass = false;
         }
     }
-    printf("\n");
+    //printf("\n");
     if (isPossibleToPass) {
-        printf("POSS\n");
+        //printf("POSS\n");
     }
     //Check the last one
     if (isForwardSet(currentInitial->isForwarded)) {
@@ -626,17 +626,17 @@ PhoneNumbers * phfwdGet(PhoneForward const *pf, char const* num) {
     }
 
     if (!lastForwardedNode) {
-        printf("not found\n");
+        //printf("not found\n");
         result->numbers[0] = strdup(num);
         if (!result->numbers[0]) {
-            printf("not found, malloc error\n");
+            //printf("not found, malloc error\n");
             return NULL;
         }
 
         return result;
     }
 
-    printf("lastForwarded prefix %s\n", lastForwardedNode->initialPrefix);
+    //printf("lastForwarded prefix %s\n", lastForwardedNode->initialPrefix);
 
     ForwardedNode * forwardedPrefixNode = lastForwardedNode->forwardingNode;
     char* finalPrefix = forwardedPrefixNode->forwardedPrefix;
@@ -648,7 +648,7 @@ PhoneNumbers * phfwdGet(PhoneForward const *pf, char const* num) {
 
     char* resultingForward = malloc(finalLength);
     if (!resultingForward) {
-        printf("malloc resutingforward\n");
+        //printf("malloc resutingforward\n");
         return NULL;
     }
 
@@ -658,8 +658,8 @@ PhoneNumbers * phfwdGet(PhoneForward const *pf, char const* num) {
     resultingForward[finalLength - 1] = '\0';
 
     result->numbers[0] = resultingForward;
-    printf("found |%s|\n", resultingForward);
-    printf("from result %s\n", result->numbers[0]);
+    //printf("found |%s|\n", resultingForward);
+    //printf("from result %s\n", result->numbers[0]);
 
     return result;
 }
@@ -680,7 +680,7 @@ char const * phnumGet(PhoneNumbers const *pnum, size_t idx) {
         return NULL;
     }
     else {
-        printf("I am here\n");
+        //printf("I am here\n");
         return (char const*)pnum->numbers[idx];
     }
 }
