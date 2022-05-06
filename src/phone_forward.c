@@ -268,6 +268,10 @@ int getIndex(char c) {
 
 bool phfwdAdd(PhoneForward *pfd, char const *num1, char const *num2) {
     //printf("to be forwarded: %s   ->  %s\n", num1, num2);
+    if (!pfd) {
+        return false;
+    }
+    
     size_t len1 = checkLength(num1);
     if (len1 == 0) {
         return false;
