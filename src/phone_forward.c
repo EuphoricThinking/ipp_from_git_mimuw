@@ -209,6 +209,7 @@ bool addPrefixForwardAndSetForward(ForwardedNode* finalForward, const char* pref
         }
 
         setBitForward(&(finalForward->isForwarding));
+        printf("FPREF %s\n", prefix);
     }
 
     return true;
@@ -325,7 +326,7 @@ bool phfwdAdd(PhoneForward *pfd, char const *num1, char const *num2) {
 
     depth = 0;
     ForwardedNode * currentForward = pfd->forwardedRoot;
-    
+    printf("F digit: ");
     while (depth < len2) {
         digit = getIndex(num2[depth]);
         
@@ -334,18 +335,20 @@ bool phfwdAdd(PhoneForward *pfd, char const *num1, char const *num2) {
             if (!newNode) {
                 return false;
             }
-            
+            printf("A%d ", digit);
             currentForward->alphabet[digit] = newNode;
             currentForward->filledEdges++;
             
             currentForward = newNode;
         }
         else {
+            printf("W%d ", digit);
             currentForward = currentForward->alphabet[digit];
             depth++;
         }
     }
 
+    printf("\n");
 //    setBitForward(&(currentForward->ISforwarding));
 
     if (!addForwardedNode(currentInitial, currentForward)) {
@@ -600,6 +603,14 @@ PhoneNumbers * phfwdGet(PhoneForward const *pf, char const* num) {
         }
     }
     printf("\n");
+    if (isPossibleToPass) {
+        printf("POSS\n");
+    }
+    //Check the last one
+    if (isForwardSet(currentInitial->isForwarded)) {
+        lastForwardedNode = currentInitial;
+    }
+
     if (!lastForwardedNode) {
         printf("not found\n");
         result->numbers[0] = strdup(num);
@@ -610,6 +621,8 @@ PhoneNumbers * phfwdGet(PhoneForward const *pf, char const* num) {
 
         return result;
     }
+
+    printf("lastForwarded prefix %s\n", lastForwardedNode->initialPrefix);
 
     ForwardedNode * forwardedPrefixNode = lastForwardedNode->forwardingNode;
     char* finalPrefix = forwardedPrefixNode->forwardedPrefix;
