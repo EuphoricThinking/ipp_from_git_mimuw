@@ -266,6 +266,7 @@ int getIndex(char c) {
 }
 
 bool phfwdAdd(PhoneForward *pfd, char const *num1, char const *num2) {
+    printf("to be forwarded: %s   ->  %s\n", num1, num2);
     size_t len1 = checkLength(num1);
     if (len1 == 0) {
         return false;
@@ -283,6 +284,7 @@ bool phfwdAdd(PhoneForward *pfd, char const *num1, char const *num2) {
     uint64_t depth = 0;
     InitialNode * currentInitial = pfd->initialRoot;
     int digit;
+    printf("ADD digit: ");
     while (depth < len1) {
         digit = getIndex(num1[depth]); //TODO check if it works
         
@@ -292,16 +294,28 @@ bool phfwdAdd(PhoneForward *pfd, char const *num1, char const *num2) {
                 return false;
             }
 
+            printf("A%d ", digit);
             currentInitial->alphabet[digit] = newNode;
             currentInitial->filledEdges++;
 
             currentInitial = newNode;
         }
         else {
+            printf("W%d ", digit);
             currentInitial = currentInitial->alphabet[digit];
+            depth++;
         }
     }
 
+    printf("\n\n");
+
+    printf("root ");
+    for (int i = 0; i < ALPHABET_SIZE; i++) {
+        if (pfd->initialRoot->alphabet[i]) {
+            printf("%d ", i);
+        }
+    }
+    printf("\n after root \n");
 //    if (currentInitial->filledEdges == 0) {
 //        setBit(&(currentInitial->forwarded), TERMINAL_BIT);
 //    }
@@ -328,6 +342,7 @@ bool phfwdAdd(PhoneForward *pfd, char const *num1, char const *num2) {
         }
         else {
             currentForward = currentForward->alphabet[digit];
+            depth++;
         }
     }
 
@@ -545,8 +560,14 @@ PhoneNumbers * createNewPhoneNumbers() {
 }
 
 PhoneNumbers * phfwdGet(PhoneForward const *pf, char const* num) {
+    printf("original: %s\n", num);
     size_t len = checkLength(num);
     PhoneNumbers * result = createNewPhoneNumbers();
+    if (!pf) {
+        printf("struct is null\n");
+        return NULL;
+    }
+
     if (!result) {
         printf("phonenumbers malloc error\n");
         return NULL;
@@ -557,16 +578,12 @@ PhoneNumbers * phfwdGet(PhoneForward const *pf, char const* num) {
         return result;
     }
 
-    if (!pf) {
-        printf("struct is null\n");
-        return NULL;
-    }
-
     InitialNode * lastForwardedNode = NULL;
     InitialNode * currentInitial = pf->initialRoot;
     bool isPossibleToPass = true;
     size_t depth = 0;
     int digit;
+    printf("digit: ");
     while (depth < len && isPossibleToPass) {
         digit = getIndex(num[depth]);
         if (isForwardSet(currentInitial->isForwarded)) {
@@ -574,6 +591,7 @@ PhoneNumbers * phfwdGet(PhoneForward const *pf, char const* num) {
         }
 
         if (currentInitial->alphabet[digit]) {
+            printf("%d ", digit);
             currentInitial = currentInitial->alphabet[digit];
             depth++;
         }
@@ -581,7 +599,7 @@ PhoneNumbers * phfwdGet(PhoneForward const *pf, char const* num) {
             isPossibleToPass = false;
         }
     }
-
+    printf("\n");
     if (!lastForwardedNode) {
         printf("not found\n");
         result->numbers[0] = strdup(num);

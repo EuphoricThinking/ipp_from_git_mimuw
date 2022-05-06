@@ -23,7 +23,7 @@ printf("new\n");
   memset(num2, 0, sizeof num2);
 printf("adteradd\n");
   pnum = phfwdGet(pf, "1234");
-  printf("res|%s|\n", pnum);
+//  printf("res|%s|\n", pnum);
   assert(strcmp(phnumGet(pnum, 0), "94") == 0);
   assert(phnumGet(pnum, 1) == NULL);
   phnumDelete(pnum);
