@@ -543,10 +543,6 @@ PhoneNumbers * createNewPhoneNumbers() {
 }
 
 PhoneNumbers * phfwdGet(PhoneForward const *pf, char const* num) {
-    if (!pf) {
-        return NULL;
-    }
-
     size_t len = checkLength(num);
     PhoneNumbers * result = createNewPhoneNumbers();
     if (!result) {
@@ -555,6 +551,10 @@ PhoneNumbers * phfwdGet(PhoneForward const *pf, char const* num) {
 
     if (len == -1) {
         return result;
+    }
+
+    if (!pf) {
+        return NULL;
     }
 
     InitialNode * lastForwardedNode = NULL;
@@ -625,4 +625,9 @@ char const * phnumGet(PhoneNumbers const *pnum, size_t idx) {
     else {
         return (char const*)pnum->numbers[idx];
     }
+}
+
+PhoneNumbers * phfwdReverse(__attribute__((unused)) PhoneForward const * pf,
+                            __attribute__((unused)) char const *num) {
+    return NULL;
 }
