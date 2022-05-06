@@ -539,7 +539,7 @@ PhoneNumbers * createNewPhoneNumbers() {
 
     result->numbers[0] = NULL;
     result->slots = 1;
-    result->lastAvailableIndex = 1;
+    result->lastAvailableIndex = 1; //reallocation should occur analogously to adding nodes"
     
     return result;
 }
