@@ -133,12 +133,12 @@ PhoneForward * phfwdNew(void) {
         return NULL;
     }
 
-    result->forwardedRoot = initForwardedNode(NULL, 0);
+    result->forwardedRoot = initForwardedNode(NULL, 0, -1);
     if (!result->forwardedRoot) {
         return NULL;
     }
 
-    result->initialRoot = initInitialNode(NULL, 0);
+    result->initialRoot = initInitialNode(NULL, 0, -1);
     if (!result->initialRoot) {
         return NULL;
     }
