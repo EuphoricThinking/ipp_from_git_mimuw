@@ -194,9 +194,9 @@ bool addForwardedNode(InitialNode* toBeForwarded, ForwardedNode* finalForward) {
 }
 
 bool addPrefixForward(ForwardedNode* finalForward, const char* prefix) {
-    forwardingNode->forwardedPrefix = strdup(prefix);
+    finalForward->forwardedPrefix = strdup(prefix);
 
-    if (!(forwardingNode->forwardedPrefix)) {
+    if (!(finalForward->forwardedPrefix)) {
         return false;
     }
 
@@ -535,11 +535,12 @@ PhoneNumbers * phfwdGet(PhoneForward const *pf, char const* num) {
     int digit;
     while (depth < len && isPossible) {
         digit = getIndex(num[depth]);
-        if (isForwardSet(currentInitial->isForwarded)) {
-            lastForwardedNode = currentInitial;
-        }
-        
+
         if (currentInitial->alphabet[digit]) {
+            if (isForwardSet(currentInitial->isForwarded)) {
+                lastForwardedNode = currentInitial;
+            }
+
             currentInitial = currentInitial->alphabet[digit];
             depth++;
         }
@@ -557,5 +558,25 @@ PhoneNumbers * phfwdGet(PhoneForward const *pf, char const* num) {
         return result;
     }
 
+    ForwardedNode * forwardedPrefixNode = currentInitial->forwardingNode;
+    char* finalPrefix = forwardedPrefixNode->forwardedPrefix;
 
+    size_t finalPrefixLength = forwardedPrefixNode->depth;
+    size_t nonForwardedPrefixLength = currentInitial->depth;
+    size_t finalSuffixLength = len - nonForwardedPrefixLength;
+    size_t finalLength = finalSuffixLength + finalPrefixLength + 1;
+
+    char* resultingForward = malloc(finalLength);
+    if (!resultingForward) {
+        return NULL;
+    }
+
+    memmove(resultingForward, finalPrefix, finalPrefixLength);
+    memmove(resultingForward + finalPrefixLength, num + nonForwardedPrefixLength,
+            finalSuffixLength);
+    resultingForward[finalLength - 1] = '\0';
+
+    result->numbers[0] = resultingForward;
+
+    return result;
 }
