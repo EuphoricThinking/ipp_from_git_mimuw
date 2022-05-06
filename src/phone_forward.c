@@ -10,8 +10,9 @@
 
 #define ALPHABET_SIZE   10
 
-#define TERMINAL_BIT    0
-#define FORWARD_BIT   1
+//#define TERMINAL_BIT    0
+#define FORWARD_BIT   0
+
 struct ForwardedNode;
 
 typedef struct InitialNode {
@@ -19,7 +20,7 @@ typedef struct InitialNode {
     struct ForwardedNode* forward;
     struct InitialNode* alphabet[ALPHABET_SIZE];
     uint64_t depth;
-    uint8_t terminalForwarded;
+    uint8_t forwarded;
     uint64_t indexForward;
     uint64_t howManyHavePassedThrough;
 } InitialNode;
@@ -27,8 +28,9 @@ typedef struct InitialNode {
 typedef struct ForwardedNode {
     struct ForwardedNode* ancestor;
     struct ForwardedNode* alphabet[ALPHABET_SIZE];
-    uint8_t terminalForwarding;
+    uint8_t forwarding;
     uint64_t numForwardedNodes;
+    uint64_t depth;
     uint64_t numSlotsForNodes;
     InitialNode** forwardedNodes;
     char* forwardedPrefix;
@@ -41,16 +43,23 @@ typedef struct PhoneForward {
 } PhoneForward;
 
 
-void setBit(uint8_t* flag, int numBitsToShift) {
-    *flag |= ((uint8_t) 1 << numBitsToShift);
+//void setBit(uint8_t* flag, int numBitsToShift) {
+//    *flag |= ((uint8_t) 1 << numBitsToShift);
+//}
+//
+//void clearBit(uint8_t* flag, int numBitsToShift) {
+//    *flag &= ~((uint8_t)1 << numBitsToShift);
+//}
+void setBitForward(uint8_t * flag) {
+    *flag |= (uint8_t) 1;
 }
 
-void clearBit(uint8_t* flag, int numBitsToShift) {
-    *flag &= ~((uint8_t)1 << numBitsToShift);
+void clearBitForward(uint8_t * flag) {
+    *flag &= ~(uint8_t) 1;
 }
 
-InitialNode * initInitialNode(InitialNode* ancestor, uint64_t depth,
-                              bool isTerminal) {
+InitialNode * initInitialNode(InitialNode* ancestor, uint64_t depth) {
+ //                             bool isTerminal) {
     InitialNode * result = malloc(sizeof (InitialNode));
     if (!result) {
         return NULL;
@@ -59,7 +68,7 @@ InitialNode * initInitialNode(InitialNode* ancestor, uint64_t depth,
     result->ancestor = ancestor;
     result->forward = NULL;
     result->depth = depth;
-    result->terminalForwarded = 0;
+//    result->forwarded = 0;
     result->indexForward = 0;
     result->howManyHavePassedThrough = 0;
 
@@ -67,32 +76,33 @@ InitialNode * initInitialNode(InitialNode* ancestor, uint64_t depth,
         result->alphabet[i] = NULL;
     }
 
-    if (isTerminal) {
-        setBit(&(result->terminalForwarded), TERMINAL_BIT);
-    }
+//    if (isTerminal) {
+//        setBit(&(result->forwarded), TERMINAL_BIT);
+//    }
 
     return result;
 }
 
-ForwardedNode * initForwardedNode(ForwardedNode* ancestor, bool isTerminal) {
+ForwardedNode * initForwardedNode(ForwardedNode* ancestor, uint64_t depth) {
 //                                  bool isForwarding) {
     ForwardedNode * result = malloc(sizeof (ForwardedNode));
     if (!result) {
         return NULL;
     }
 
-    result->terminalForwarding = 0;
-    if (isTerminal) {
-        setBit(&(result->terminalForwarding), TERMINAL_BIT);
-    }
+    result->forwarding = 0;
+//    if (isTerminal) {
+//        setBit(&(result->forwarding), TERMINAL_BIT);
+//    }
 
 //    if (isForwarding) {
-//        setBit(&(result->terminalForwarding), FORWARD_BIT);
+//        setBit(&(result->forwarding), FORWARD_BIT);
 //    }
 
     result->ancestor = ancestor;
     result->forwardedPrefix = NULL;
     result->howManyHavePassedThrough = 0;
+    result->depth = depth;
 
     result->numForwardedNodes = 0;
     result->numSlotsForNodes = 0;
@@ -124,14 +134,15 @@ PhoneForward * phfwdNew(void) {
     return result;
 }
 
-bool setAsFinalForward(ForwardedNode* forwarding, const char* prefix) {
-    forwarding->forwardedPrefix = strdup(prefix);
+bool setAsFinalForward(ForwardedNode* forwardingNode, const char* prefix) {
+    forwardingNode->forwardedPrefix = strdup(prefix);
 
-    if (!(forwarding->forwardedPrefix)) {
+    if (!(forwardingNode->forwardedPrefix)) {
         return false;
     }
 
-    setBit(&(forwarding->terminalForwarding), FORWARD_BIT);
+//    setBit(&(forwarding->forwarding), FORWARD_BIT);
+    setBitForward(&(forwardingNode->forwarding));
 
     return true;
 }
@@ -177,6 +188,10 @@ bool isForwardSet(int flag) {
     return (flag && ((uint8_t)1 << FORWARD_BIT)) != 0;
 }
 
+int getIndex(char c) {
+    return c - '0';
+}
+
 bool phfwdAdd(PhoneForward *pfd, char const *num1, char const *num2) {
     int64_t len1 = checkLength(num1);
     if (len1 == -1) {
@@ -191,4 +206,56 @@ bool phfwdAdd(PhoneForward *pfd, char const *num1, char const *num2) {
     if (strcmp(num1, num2) == 0) {
         return false;
     }
+
+    uint64_t depth = 0;
+    InitialNode * currentInitial = pfd->initialRoot;
+    int digit;
+    while (depth < len1) {
+        digit = getIndex(num1[depth]); //TODO check if it works
+        currentInitial->howManyHavePassedThrough++;
+        
+        if (!(currentInitial->alphabet[digit])) { //TODO check shortened version
+            InitialNode * newNode = initInitialNode(currentInitial, ++depth, false);
+            if (!newNode) {
+                return false;
+            }
+
+            currentInitial->alphabet[digit] = newNode;
+            currentInitial = newNode;
+        }
+        else {
+            currentInitial = currentInitial->alphabet[digit];
+        }
+    }
+
+//    if (currentInitial->howManyHavePassedThrough == 0) {
+//        setBit(&(currentInitial->forwarded), TERMINAL_BIT);
+//    }
+
+//    setBit(&(currentInitial->forwarded), FORWARD_BIT);
+    setBitForward(&(currentInitial->forwarded));
+
+    depth = 0;
+    ForwardedNode * currentForward = pfd->forwardedRoot;
+    
+    while (depth < len2) {
+        digit = getIndex(num2[depth]);
+        currentForward->howManyHavePassedThrough++;
+        
+        if (!(currentForward->alphabet[digit])) {
+            ForwardedNode * newNode = initForwardedNode(currentForward, ++depth, false);
+            if (!newNode) {
+                return false;
+            }
+            
+            currentForward->alphabet[digit] = newNode;
+            currentForward = newNode;
+        }
+        else {
+            currentForward = currentForward->alphabet[digit];
+        }
+    }
+
+    setBitForward(&(currentForward->forwarding));
+    
 }
