@@ -103,7 +103,7 @@ InitialNode * initInitialNode(InitialNode* ancestor, uint64_t depth,
 }
 
 ForwardedNode * initForwardedNode(ForwardedNode* ancestor, uint64_t depth,
-                                  int edgeLeadingTo;) {
+                                  int edgeLeadingTo) {
 //                                  bool isForwarding) {
     ForwardedNode * result = malloc(sizeof (ForwardedNode));
     if (!result) {
