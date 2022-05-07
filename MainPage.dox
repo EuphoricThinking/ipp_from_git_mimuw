@@ -1,14 +1,19 @@
 /**
-@mainpage Dokumentacja zadania telefony
+@mainpage Documentation of the project "Phone numbers"
 
-### Treść zadania
 
-Uwaga: aktualna treść zadania znajduje się w [Moodle](https://moodle.mimuw.edu.pl).
+### Problem description
 
-### Opis programu
+Warning: the up-to-date description can be found at [Moodle](https://moodle.mimuw.edu.pl).
 
-Tegoroczne duże zadanie polega na zaimplementowaniu operacji na numerach telefonów.
+### Problem description
 
-TODO
+This year's big project requires implementation of the operations on phone numbers.
+
+Presented documentation covers the part of the project related to handling the forwarding of the phone numbers: when the phone numbers with the specific prefixes are redirected unambiguously to the corresponding different phone numbers. The vocabulary used in the documenation may include a few conjectural statements, therefore more common shortcuts are described below:
+ - a word "forwarding" and its derivatives is often substituted with "redirection" and its derivatives;
+ - an adjective "terminal" is often related to a node, indicating that after finishing the path - traversing the tree edge by edge simultaneosuly with scanning the string letter by letter - the information related to the given prefix is stored in the first node after the last edge labeled with a specific character, which is the last character of the given string;
+ - "final prefix", "final node" etc. - an adjective "final" refers mostly to the prefix to whom other prefixes are redirected.
+ - for clarity, a word "string" is used as a name for "char array" in C.
 
 */
