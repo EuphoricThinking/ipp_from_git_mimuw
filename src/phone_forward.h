@@ -16,7 +16,7 @@
  * To jest struktura przechowująca przekierowania numerów telefonów.
  */
 struct PhoneForward;
-typedef struct PhoneForward PhoneForward;  ///< Final name
+typedef struct PhoneForward PhoneForward;  ///< Przechowuje dane o przekierowaniach
 
 /**
  * To jest struktura przechowująca ciąg numerów telefonów.
