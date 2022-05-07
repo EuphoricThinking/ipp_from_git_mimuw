@@ -1,5 +1,5 @@
 /** @file
- * Interfejs klasy przechowującej przekierowania numerów telefonicznych
+ * Interface of the class storing phone numbers forwards
  *
  * @authors Marcin Peczarski <marpe@mimuw.edu.pl>,
  *          Agata Momot <a.momot4@student.uw.edu.pl>
@@ -14,16 +14,16 @@
 #include <stddef.h>
 
 /**
- * To jest struktura przechowująca przekierowania numerów telefonów.
+ * This is the structure storing phone numbers forwards.
  */
 struct PhoneForward;
-typedef struct PhoneForward PhoneForward;  ///< Przechowuje dane o przekierowaniach
+typedef struct PhoneForward PhoneForward;  ///< Stores phone forwards
 
 /**
- * To jest struktura przechowująca ciąg numerów telefonów.
+ * This is the structure storing the sequence of phone numbers,
  */
 struct PhoneNumbers;
-typedef struct PhoneNumbers PhoneNumbers;  ///< Final name
+typedef struct PhoneNumbers PhoneNumbers;  ///< Stores phone numbers
 
 /** @brief Creates a new structure.
  * Creates a new structure which does not contain any redirections.

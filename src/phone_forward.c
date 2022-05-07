@@ -859,7 +859,7 @@ char const * phnumGet(PhoneNumbers const *pnum, size_t idx) {
  * Assigns the following sequence of numbers to the given number: if there
  * exists a number @p x such that the result of calling @p phfwdGet
  * with the number @p x includes the number @p num, then the number @p x
- * belongs to the set returned by @ref phfwdReverse
+ * belongs to the set returned from @ref phfwdReverse
  * with the number @p num. The resulting numbers are sorted lexicographically
  * and they must not repeat in the returned set. If the given string does not
  * represent a number the result is an empty sequence. Allocates a structure
