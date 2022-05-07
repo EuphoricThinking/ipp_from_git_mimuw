@@ -15,3 +15,6 @@ Makefile
 phone_forward
 .gdb_history
 peda-session-phone_forward.txt
+html
+html/
+

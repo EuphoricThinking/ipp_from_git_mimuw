@@ -30,7 +30,7 @@ struct ForwardedNode;
  * @brief A struct describing nodes storing information for prefixes
  * of the numbers which are supposed to be redirected.
  * @var InitialNode::ancestor
- *      An ancestor of the current node.
+ *      A parent node of the current node.
  * @var InitialNode::forwardingNode
  *      A pointer to the node which stores the information about redirection
  * @var InitialNode::alphabet
@@ -55,8 +55,17 @@ struct ForwardedNode;
  *      The number of edges leaving the node, equivalent of the number
  *      of the children and the number of indices in \link InitialNode::alphabet alphabet \endlink
  *      which do not indicate NULL.
- * @var InitialNode::
- * @var InitialNode::
+ * @var InitialNode::edgeLeadingTo
+ *      The label of the edge leading to the current node, equivalent to
+ *      the index value in \link InitialNode::alphabet alphabet array \endlink
+ *      of the parent.
+ * @var InitialNode::lastChecked
+ *      The index of the last checked element in \link InitialNode::alphabet
+ *      alphabet array \endlink, used in iterative tree traversal.
+ * @var InitialNode::initialPrefix
+ *      The string associated with the prefix terminating in the current node,
+ *      saved for speed-up of redirection lookup and for the future
+ *      implementation of the ReverseFunction
  */
 typedef struct InitialNode {
     struct InitialNode* ancestor;
