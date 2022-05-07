@@ -58,8 +58,6 @@ printf("adteradd\n");
   phnumDelete(pnum);
 
   pnum = phfwdReverse(pf, "432");
-  if (pnum) printf("FUCK\n");
-  else printf("NOT FUCK NULL\n");
 //  assert(strcmp(phnumGet(pnum, 0), "431") == 0);
 //  assert(strcmp(phnumGet(pnum, 1), "432") == 0);
 //  assert(phnumGet(pnum, 2) == NULL);
