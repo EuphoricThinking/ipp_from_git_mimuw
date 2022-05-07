@@ -1,7 +1,8 @@
 /** @file
  * Interfejs klasy przechowującej przekierowania numerów telefonicznych
  *
- * @author Marcin Peczarski <marpe@mimuw.edu.pl>
+ * @authors Marcin Peczarski <marpe@mimuw.edu.pl>,
+ *          Agata Momot <a.momot4@student.uw.edu.pl>
  * @copyright Uniwersytet Warszawski
  * @date 2022
  */
@@ -77,7 +78,7 @@ void phfwdRemove(PhoneForward *pf, char const *num);
  * If the given number has not been redirected, the result is the sequence
  * containing this one number. If the given string does not represent a number,
  * the result is an empty sequence. Allocates the structure @p PhoneNumbers,
- * which should be freed with the function @ref phnumDelete.
+ * which should be freed using the function @ref phnumDelete.
  *
  * @param[in] pf - a pointer to the structure storing number redirections.
  * @param[in] num - a pointer to the string representing the number.
@@ -86,18 +87,20 @@ void phfwdRemove(PhoneForward *pf, char const *num);
  */
 PhoneNumbers * phfwdGet(PhoneForward const *pf, char const *num);
 
-/** @brief Wyznacza przekierowania na dany numer.
- * Wyznacza następujący ciąg numerów: jeśli istnieje numer @p x, taki że wynik
- * wywołania @p phfwdGet z numerem @p x zawiera numer @p num, to numer @p x
- * należy do wyniku wywołania @ref phfwdReverse z numerem @p num. Dodatkowo ciąg
- * wynikowy zawsze zawiera też numer @p num. Wynikowe numery są posortowane
- * leksykograficznie i nie mogą się powtarzać. Jeśli podany napis nie
- * reprezentuje numeru, wynikiem jest pusty ciąg. Alokuje strukturę
- * @p PhoneNumbers, która musi być zwolniona za pomocą funkcji @ref phnumDelete.
- * @param[in] pf  – wskaźnik na strukturę przechowującą przekierowania numerów;
- * @param[in] num – wskaźnik na napis reprezentujący numer.
- * @return Wskaźnik na strukturę przechowującą ciąg numerów lub NULL, gdy nie
- *         udało się alokować pamięci.
+/** @brief Assigns a redirection to the given number.
+ * Assigns the following sequence of numbers to the given number: if there
+ * exists a number @p x such that the result of calling @p phfwdGet
+ * with the number @p x includes the number @p num, then the number @p x
+ * belongs to the set returned by @ref phfwdReverse
+ * with the number @p num. The resulting numbers are sorted lexicographically
+ * and they must not repeat in the returned set. If the given string does not
+ * represent a number the result is an empty sequence. Allocates a structure
+ * @p PhoneNumbers, which should be freed using the function @ref phnumDelete.
+ *
+ * @param[in] pf - a pointer to the structure storing number redirections;
+ * @param num - a pointer to the string representing a number.
+ * @return A pointer to the structure storing the sequence of numbers
+ *         or NULL in case of memory allocation failure.
  */
 PhoneNumbers * phfwdReverse(PhoneForward const *pf, char const *num);
 
