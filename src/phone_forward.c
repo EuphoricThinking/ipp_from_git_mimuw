@@ -149,11 +149,32 @@ typedef struct ForwardedNode {
     uint64_t filledEdges;
 } ForwardedNode;
 
+/** @struct PhoneForward
+ *  @brief A storage for root nodes for trees responsible for storing
+ *  information about forwarded and forwarding prefixes.
+ *  @var PhoneForward::forwardedRoot
+ *      A root of the tree responsible for storing data related to the final
+ *      prefixes.
+ *  @var PhoneForward::initialRoot
+ *      A root of the tree responsible for storing data related to
+ *      the redirected prefixes.
+ */
 typedef struct PhoneForward {
     ForwardedNode* forwardedRoot;
     InitialNode* initialRoot;
 } PhoneForward;
 
+/** @struct PhoneNumbers
+ * @brief Struct for storing the full phone numbers retrieved from PhoneForward.
+ * @var PhoneNumbers::numbers
+ *      An array storing full phone numbers
+ * @var PhoneNumbers::slots
+ *      Number of available slots in \link PhoneNumbers::numbers number array
+ *      \endlink, resulting from memory allocation.
+ * @var PhoneNumbers::lastAvailableIndex
+ *      The last non-occupied index in \link PhoneNumbers::numbers number array
+ *      \endlink
+ */
 typedef struct PhoneNumbers {
     char** numbers;
     uint64_t slots;
