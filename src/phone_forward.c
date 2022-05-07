@@ -752,6 +752,8 @@ static PhoneNumbers * createNewPhoneNumbers() {
     
     result->numbers = malloc(sizeof (char*));
     if (!result->numbers) {
+        free(result);
+
         return NULL;
     }
 
@@ -764,11 +766,12 @@ static PhoneNumbers * createNewPhoneNumbers() {
 }
 
 PhoneNumbers * phfwdGet(PhoneForward const *pf, char const* num) {
-    size_t len = checkLength(num);
-    PhoneNumbers * result = createNewPhoneNumbers();
     if (!pf) {
         return NULL;
     }
+
+    size_t len = checkLength(num);
+    PhoneNumbers * result = createNewPhoneNumbers();
 
     if (!result) {
         return NULL;
