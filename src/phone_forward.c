@@ -1,5 +1,5 @@
 /** @file
- * Interfejs klasy przechowującej przekierowania numerów telefonicznych
+ * Implementation of the class storing the number forwardings
  *
  * @author Agata Momot <a.momot4@student.uw.edu.pl>
  * @copyright Uniwersytet Warszawski
@@ -28,7 +28,7 @@ struct ForwardedNode;
 
 /** @struct InitialNode
  * @brief A struct describing nodes storing information for prefixes
- * of the numbers which are supposed to be redirected.
+ *      of the numbers which are supposed to be redirected.
  * @var InitialNode::ancestor
  *      A parent node of the current node.
  * @var InitialNode::forwardingNode
@@ -181,25 +181,63 @@ typedef struct PhoneNumbers {
     uint64_t lastAvailableIndex;
 } PhoneNumbers;  ///< Final struct for storing full numbers
 
-
+/** @brief Sets a flag bit.
+ *  Sets a flag bit in order to indicate that the given node participates
+ *  in forwarding.
+ *
+ *  Bitwise is used instead of simple value assigned in order to prepare
+ *  the function for probable future extensions (incorporation of the new flags,
+ *  accordingly to the needs of the future project steps; number of shifted
+ *  bits, defined for a particular flag, should be added then to the arguments).
+ *
+ * @param[in, out] flag - a pointer to isForwarding or isForwarded struct field.
+ */
 static void setBitForward(uint8_t * flag) {
     *flag |= (uint8_t) 1;
 }
 
+/** @brief Clears a flag bit.
+ *  Clears a flag bit in order to indicate that the node which has participated
+ *  in forwarding is not participating in redirection at the moment of changing
+ *  the flag.
+ *
+ *  Bitwise is used instead of simple value assigned in order to prepare
+ *  the function for probable future extensions (incorporation of the new flags,
+ *  accordingly to the needs of the future project steps; number of shifted
+ *  bits, defined for a particular flag, should be added then to the arguments).
+ *
+ * @param[in, out] flag - a pointer to isForwarding or isForwarded struct field.
+ */
 static void clearBitForward(uint8_t * flag) {
     *flag &= ~(uint8_t) 1;
 }
 
-/** @brief Chcę to gdzieś zobaczyć
+/** @brief Checks flag bits.
+ * Used for testing whether the given node participates in forwarding.
  *
- * @param[in] flag  - a marker whose set bit indicates whether the node
- *                    participates in forwarding
- * @return
+ *  Bitwise is used instead of simple value assigned in order to prepare
+ *  the function for probable future extensions (incorporation of the new flags,
+ *  accordingly to the needs of the future project steps; number of shifted
+ *  bits, defined for a particular flag, should be added then to the arguments).
+ *
+ * @param[in] flag  - the value of a isForwarding or isForwarded struct field.
+ *
+ * @return True if the node participates in forwarding, false otherwise.
  */
 static bool isForwardSet(uint8_t flag) {
     return (flag & (uint8_t) 1) != 0;
 }
 
+/** @brief Creates and initializes a node.
+ *  Creates and initializes the node responsible for storing the information
+ *  about the prefixes supposed to be redirected.
+ *
+ * @param[in] ancestor - a parental node of the initialized node.
+ * @param[in] depth - depth of the level at which the node is supposed to be
+ *                    assigned to the tree
+ * @param edgeLeadingTo - the label of the edge leading to the initialized node
+ * @return
+ */
 static InitialNode * initInitialNode(InitialNode* ancestor, uint64_t depth,
                               int edgeLeadingTo) {
     InitialNode * result = malloc(sizeof (InitialNode));
@@ -224,6 +262,16 @@ static InitialNode * initInitialNode(InitialNode* ancestor, uint64_t depth,
     return result;
 }
 
+/** @brief Creates and initializes a node.
+ *  Creates and initializes the node responsible for storing the information
+ *  about the prefixes supposed to represent the final redirection.
+ *
+ * @param[in] ancestor - a parental node of the initialized node.
+ * @param[in] depth - depth of the level at which the node is supposed to be
+ *                    assigned to the tree
+ * @param edgeLeadingTo - the label of the edge leading to the initialized node
+ * @return
+ */
 static ForwardedNode * initForwardedNode(ForwardedNode* ancestor, uint64_t depth,
                                   int edgeLeadingTo) {
     ForwardedNode * result = malloc(sizeof (ForwardedNode));
@@ -252,6 +300,12 @@ static ForwardedNode * initForwardedNode(ForwardedNode* ancestor, uint64_t depth
     return result;
 };
 
+/** @brief Creates a new structure.
+ * Creates a new structure which does not contain any data about redirection.
+ *
+ * @return  A pointer to the created structure or NULL in case of memory
+ *          allocation failure.
+ */
 PhoneForward * phfwdNew(void) {
     PhoneForward * result = malloc(sizeof(PhoneForward));
     if (!result) {
@@ -271,7 +325,16 @@ PhoneForward * phfwdNew(void) {
     return result;
 }
 
-
+/** @brief Adds a node to an array.
+ *  Adds a node storing information about a redirected prefix to the array
+ *  of the nodes indicating terminal nodes for redirected prefixes,
+ *  which is assigned to the specific node to whom the prefixes are redirected.
+ *
+ * @param[in, out] toBeForwarded - a terminal node for a redirected prefix
+ * @param[in, out] finalForward - a terminal node for the final redirection.
+ *
+ * @return False in case of memory allocation failure, true otherwise.
+ */
 static bool addForwardedNode(InitialNode* toBeForwarded, ForwardedNode* finalForward) {
     uint64_t * slots = &(finalForward->numSlotsForNodes);
     uint64_t * numNodes = &(finalForward->numForwardedNodes);
@@ -297,6 +360,17 @@ static bool addForwardedNode(InitialNode* toBeForwarded, ForwardedNode* finalFor
     return true;
 }
 
+/** @brief Adds prefix to node and sets a flag.
+ * Adds a final prefix to the terminal node corresponding to the given prefix
+ * and set isForwarding flag in order to indicate that the passed node
+ * participates in redirection
+ *
+ * @param[in, out] finalForward - the terminal node corresponding to the final
+ *                                prefix
+ * @param[in] prefix - the final prefix associated with the given node.
+ *
+ * @return False in case of memory allocation failure, true otherwise.
+ */
 static bool addPrefixForwardAndSetForward(ForwardedNode* finalForward, const char* prefix) {
     // If it hasn't been previously set - the value of the string is the same
     if (!isForwardSet(finalForward->isForwarding)) {
