@@ -7,8 +7,8 @@
  */
 
 /**
- * A macro which enables usage of strdup(char * s), which isn't included
- * in C standard but is a POSIX extension.
+ * A macro which enables using strdup(char * s), which isn't included
+ * in C standard, being instead a POSIX extension.
  */
 #define _DEFAULT_SOURCE
 #include <stdlib.h>
@@ -20,7 +20,7 @@
 
 /**
  * The size of the alphabet of the telephone numbers, counting
- * ten characters from 0 to 9 inclusively
+ * ten characters from 0 to 9 inclusively.
  */
 #define ALPHABET_SIZE   10
 
@@ -32,27 +32,27 @@ struct ForwardedNode;
  * @var InitialNode::ancestor
  *      A parent node of the current node.
  * @var InitialNode::forwardingNode
- *      A pointer to the node which stores the information about redirection
+ *      A pointer to the node which stores the information about redirection.
  * @var InitialNode::alphabet
  *      An array storing pointers to children nodes which are sorted according
  *      to the label of the edge leading to the subsequent node. The value
  *      of an index in range from 0 to 9 unambiguously labels the edge.
  * @var InitialNode::depth
  *      Depth of the node in a tree, related to the accurate length
- *      of the redirected prefix
+ *      of the redirected prefix.
  * @var InitialNode::isForwarded
  *      A flag indicating whether the given node is a terminal node for
- *      a prefix which should be redirected, therefore it is the first node
+ *      a prefix which should be redirected; therefore it is the first node
  *      after the last edge labeled with the last digit of a number
- *      and contains a pointer to corresponding node, representing the final
+ *      and contains a pointer to the corresponding node, representing the final
  *      redirection.
  * @var InitialNode::indexForward
  *      If the given node is a terminal node for a redirected prefix,
  *      indexForward stores the index in the array of terminal nodes
- *      for forwarded prefixes contained in a node, which is responsible
- *      for the final redirection
+ *      for forwarded prefixes contained in a node which is responsible
+ *      for the final redirection.
  * @var InitialNode::filledEdges
- *      The number of edges leaving the node, equivalent of the number
+ *      The number of edges leaving the node, equivalent to the number
  *      of the children and the number of indices in
  *      \link InitialNode::alphabet alphabet \endlink which do not indicate NULL.
  * @var InitialNode::edgeLeadingTo
@@ -61,11 +61,11 @@ struct ForwardedNode;
  *      of the parent.
  * @var InitialNode::lastChecked
  *      The index of the last checked element in \link InitialNode::alphabet
- *      alphabet array \endlink, used in iterative tree traversal.
+ *      alphabet array \endlink, used in the iterative tree traversal.
  * @var InitialNode::initialPrefix
  *      The string associated with the prefix terminating in the current node,
  *      saved for speed-up of redirection lookup and for the future
- *      implementation of the ReverseFunction
+ *      implementation of phfwdReverse.
  */
 typedef struct InitialNode {
     struct InitialNode* ancestor;
@@ -101,10 +101,11 @@ typedef struct InitialNode {
  *          An index of the last slot available for storing a redirected node.
  *  @var ForwardedNode::sumForwarded
  *          The sum of the nodes currently redirected to the given node.
- *          Enables exclusion of the NULL slots, freed after redirection removal.
+ *          Enables exclusion of the NULL slots, emptied after a redirection
+ *          removal.
  *  @var ForwardedNode::depth
  *          Depth of the node in a tree, related to the accurate length
- *          of the redirected prefix
+ *          of the redirected prefix.
  *  @var ForwardedNode::numSlotsForNodes
  *          The number of available slots for storing the pointers to
  *          the redirected nodes, regarding the size of the memory allocated
@@ -116,20 +117,20 @@ typedef struct InitialNode {
  *          \endlink of the parent.
  *  @var ForwardedNode::lastChecked
  *          The index of the last checked element in \link
- *          ForwardedNode::alphabet alphabet array \endlink, used in iterative
- *          tree traversal.
+ *          ForwardedNode::alphabet alphabet array \endlink, used in the
+ *          iterative tree traversal.
  *  @var ForwardedNode::forwardedNodes
  *          If the given node is terminal for the given final prefix,
- *          it stores the array of pointers to InitialNode nodes,
+ *          it stores an array of pointers to InitialNode nodes,
  *          which are terminal for the prefixes supposed to be redirected.
  *          If the redirection is removed, NULL is placed at the index
  *          indicating the pointer to a given node.
  *  @var ForwardedNode::forwardedPrefix
  *          The string associated with the prefix terminating in the current
  *          node, saved for speed-up of redirection lookup and for the future
- *          implementation of the ReverseFunction
+ *          implementation of phfwdReverse.
  *  @var ForwardedNode::filledEdges
- *          The number of edges leaving the node, equivalent of the number
+ *          The number of edges leaving the node, equivalent to the number
  *          of the children and the number of indices in
  *          \link ForwardedNode::alphabet alphabet \endlink which do not
  *          indicate NULL.
@@ -150,8 +151,9 @@ typedef struct ForwardedNode {
 } ForwardedNode; ///< Compound struct for storing data about forwarding prefixes
 
 /** @struct PhoneForward
- *  @brief A storage for root nodes for trees responsible for storing
+ *  @brief A storage for root nodes - trees responsible for storing
  *  information about forwarded and forwarding prefixes.
+ *
  *  @var PhoneForward::forwardedRoot
  *      A root of the tree responsible for storing data related to the final
  *      prefixes.
@@ -185,10 +187,11 @@ typedef struct PhoneNumbers {
  *  Sets a flag bit in order to indicate that the given node participates
  *  in forwarding.
  *
- *  Bitwise is used instead of simple value assigned in order to prepare
- *  the function for probable future extensions (incorporation of the new flags,
- *  accordingly to the needs of the future project steps; number of shifted
- *  bits, defined for a particular flag, should be added then to the arguments).
+ *  Bitwise operation is used instead of simple value assigned in order to
+ *  prepare the function for probable future extensions (incorporation of the
+ *  new flags, accordingly to the needs of the future project steps; number of
+ *  shifted bits, defined for a particular flag, should be added then to
+ *  the arguments).
  *
  * @param[in, out] flag - a pointer to isForwarding or isForwarded struct field.
  */
@@ -201,10 +204,11 @@ static void setBitForward(uint8_t * flag) {
  *  in forwarding is not participating in redirection at the moment of changing
  *  the flag.
  *
- *  Bitwise is used instead of simple value assigned in order to prepare
- *  the function for probable future extensions (incorporation of the new flags,
- *  accordingly to the needs of the future project steps; number of shifted
- *  bits, defined for a particular flag, should be added then to the arguments).
+ *  Bitwise operation is used instead of simple value assigned in order to
+ *  prepare the function for probable future extensions (incorporation of the
+ *  new flags, accordingly to the needs of the future project steps; number of
+ *  shifted bits, defined for a particular flag, should be added then to
+ *  the arguments).
  *
  * @param[in, out] flag - a pointer to isForwarding or isForwarded struct field.
  */
@@ -212,13 +216,14 @@ static void clearBitForward(uint8_t * flag) {
     *flag &= ~(uint8_t) 1;
 }
 
-/** @brief Checks flag bits.
+/** @brief Checks a flag bit.
  * Used for testing whether the given node participates in forwarding.
  *
- *  Bitwise is used instead of simple value assigned in order to prepare
- *  the function for probable future extensions (incorporation of the new flags,
- *  accordingly to the needs of the future project steps; number of shifted
- *  bits, defined for a particular flag, should be added then to the arguments).
+ *  Bitwise operation is used instead of simple value assigned in order to
+ *  prepare the function for probable future extensions (incorporation of the
+ *  new flags, accordingly to the needs of the future project steps; number of
+ *  shifted bits, defined for a particular flag, should be added then to
+ *  the arguments).
  *
  * @param[in] flag  - the value of a isForwarding or isForwarded struct field.
  *
@@ -236,7 +241,8 @@ static bool isForwardSet(uint8_t flag) {
  * @param[in] depth - depth of the level at which the node is supposed to be
  *                    assigned to the tree
  * @param edgeLeadingTo - the label of the edge leading to the initialized node
- * @return
+ *
+ * @return An initialized node or NULL in case of memory allocation failure.
  */
 static InitialNode * initInitialNode(InitialNode* ancestor, uint64_t depth,
                               int edgeLeadingTo) {
@@ -270,10 +276,11 @@ static InitialNode * initInitialNode(InitialNode* ancestor, uint64_t depth,
  * @param[in] depth - depth of the level at which the node is supposed to be
  *                    assigned to the tree
  * @param edgeLeadingTo - the label of the edge leading to the initialized node
- * @return
+ *
+ * @return An initialized node or NULL in case of memory allocation failure.
  */
-static ForwardedNode * initForwardedNode(ForwardedNode* ancestor, uint64_t depth,
-                                  int edgeLeadingTo) {
+static ForwardedNode * initForwardedNode(ForwardedNode* ancestor,
+                                         uint64_t depth, int edgeLeadingTo) {
     ForwardedNode * result = malloc(sizeof (ForwardedNode));
     if (!result) {
         return NULL;
@@ -325,23 +332,24 @@ PhoneForward * phfwdNew(void) {
 }
 
 /** @brief Adds a node to an array.
- *  Adds a node storing information about a redirected prefix to the array
- *  of the nodes indicating terminal nodes for redirected prefixes,
- *  which is assigned to the specific node to whom the prefixes are redirected.
+ *  Adds a node storing information about a redirected prefix - to the array
+ *  of terminal nodes for redirected prefixes. An array is contained in
+ *  the specific node to whom the prefixes are redirected.
  *
  * @param[in, out] toBeForwarded - a terminal node for a redirected prefix
  * @param[in, out] finalForward - a terminal node for the final redirection.
  *
- * @return False in case of memory allocation failure, true otherwise.
+ * @return @p False in case of memory allocation failure, @p true otherwise.
  */
-static bool addForwardedNode(InitialNode* toBeForwarded, ForwardedNode* finalForward) {
+static bool addForwardedNode(InitialNode* toBeForwarded, ForwardedNode*
+                            finalForward) {
     uint64_t * slots = &(finalForward->numSlotsForNodes);
     uint64_t * numNodes = &(finalForward->numForwardedNodes);
 
     if (*slots <= *numNodes) {
         uint64_t newSlots = (*slots)*2 + 1;
         InitialNode ** newNodeArray = realloc(finalForward->forwardedNodes,
-                                              newSlots * sizeof (InitialNode*));
+                                              newSlots * sizeof(InitialNode*));
 
         if (!newNodeArray) {
             return false;
@@ -362,16 +370,17 @@ static bool addForwardedNode(InitialNode* toBeForwarded, ForwardedNode* finalFor
 /** @brief Adds prefix to a node and sets a flag.
  * Adds a final prefix to the terminal node corresponding to the given prefix
  * and set isForwarding flag in order to indicate that the passed node
- * participates in redirection
+ * participates in the redirection.
  *
  * @param[in, out] finalForward - the terminal node corresponding to the final
  *                                prefix
  * @param[in] prefix - the final prefix associated with the given node.
  *
- * @return False in case of memory allocation failure, true otherwise.
+ * @return @p False in case of memory allocation failure, @p true otherwise.
  */
-static bool addPrefixForwardAndSetForward(ForwardedNode* finalForward, const char* prefix) {
-    // If it hasn't been previously set - the value of the string is the same
+static bool addPrefixForwardAndSetForward(ForwardedNode* finalForward,
+                                          const char* prefix) {
+    // If it has been previously set - the value of the string is the same
     if (!isForwardSet(finalForward->isForwarding)) {
         finalForward->forwardedPrefix = strdup(prefix);
 
@@ -386,18 +395,19 @@ static bool addPrefixForwardAndSetForward(ForwardedNode* finalForward, const cha
 }
 
 /** @brief Adds prefix to a node and sets a flag.
- *  Adds a redirected prefix to the terminal node corresponding to the given
- *  prefix and set isForwarded flag in order to indicate that the passed node
- *  participates in redirection.
+ *  Adds a final prefix to the terminal node corresponding to the given
+ *  original prefix and sets isForwarded flag in order to indicate that
+ *  the passed node participates in the redirection.
  *
  *  @param[in, out] init - the terminal node corresponding to the redirected
  *                         prefix
  *
  *  @param[in] prefix - the final prefix associated with the given node.
  *
- *  @return False in case of memory allocation failure, true otherwise.
+ *  @return @p False in case of memory allocation failure, @p true otherwise.
  */
-static bool addPrefixInitialAndSetForward(InitialNode * init, const char* prefix) {
+static bool addPrefixInitialAndSetForward(InitialNode * init,
+                                          const char* prefix) {
     // Temporary array enables saving the previous content
     char* copiedPrefix = strdup(prefix);
 
@@ -443,11 +453,11 @@ static size_t checkLength(const char * number) {
     }
 }
 
-/** @brief Converts char to int
- * Converts char to its integer value of the number it represents.
+/** @brief Converts a char to an int
+ * Converts a char to the integer value of the number it represents graphically.
  *
- * @param[in] c - char to convert
- * @return Integer value of the number the passed char represents.
+ * @param[in] c - a char to convert
+ * @return The integer value of the number the passed char represents graphically.
  */
 static int getIndex(char c) {
     return c - '0';
@@ -475,12 +485,14 @@ bool phfwdAdd(PhoneForward *pfd, char const *num1, char const *num2) {
     uint64_t depth = 0;
     InitialNode * currentInitial = pfd->initialRoot;
     int digit;
+
     // Extending the path for redirected prefix
     while (depth < len1) {
         digit = getIndex(num1[depth]);
         
         if (!(currentInitial->alphabet[digit])) {
-            InitialNode * newNode = initInitialNode(currentInitial, ++depth, digit);
+            InitialNode * newNode = initInitialNode(currentInitial,
+                                                    ++depth, digit);
             if (!newNode) {
                 return false;
             }
@@ -504,7 +516,8 @@ bool phfwdAdd(PhoneForward *pfd, char const *num1, char const *num2) {
         digit = getIndex(num2[depth]);
         
         if (!(currentForward->alphabet[digit])) {
-            ForwardedNode * newNode = initForwardedNode(currentForward, ++depth, digit);
+            ForwardedNode * newNode = initForwardedNode(currentForward,
+                                                        ++depth, digit);
             if (!newNode) {
                 return false;
             }
@@ -576,7 +589,7 @@ static void removeStumpsForwardedNode(ForwardedNode * currentForward) {
 
 /** @brief Removes a redirection.
  * Removes a redirection, which includes dereference the forwarding node
- * in the redirected node, exclusion of the redirected node from the array
+ * in the redirected node, exclusion of the redirected node from an array
  * of the redirected nodes, clearing the flags and removal of the potentially
  * unnecessary nodes in the final redirection tree.
  *
@@ -802,6 +815,7 @@ PhoneNumbers * phfwdGet(PhoneForward const *pf, char const* num) {
     bool isPossibleToPass = true;
     size_t depth = 0;
     int digit;
+
     while (depth < len && isPossibleToPass && currentInitial) {
         digit = getIndex(num[depth]);
         if (isForwardSet(currentInitial->isForwarded)) {
@@ -850,8 +864,8 @@ PhoneNumbers * phfwdGet(PhoneForward const *pf, char const* num) {
     }
 
     memmove(resultingForward, finalPrefix, finalPrefixLength);
-    memmove(resultingForward + finalPrefixLength, num + nonForwardedPrefixLength,
-            finalSuffixLength);
+    memmove(resultingForward + finalPrefixLength,
+            num + nonForwardedPrefixLength,finalSuffixLength);
     resultingForward[finalLength - 1] = '\0';
 
     result->numbers[0] = resultingForward;

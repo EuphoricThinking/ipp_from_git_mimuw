@@ -20,7 +20,7 @@ struct PhoneForward;
 typedef struct PhoneForward PhoneForward;  ///< Stores phone forwards
 
 /**
- * This is the structure storing the sequence of phone numbers,
+ * This is the structure storing the sequence of phone numbers.
  */
 struct PhoneNumbers;
 typedef struct PhoneNumbers PhoneNumbers;  ///< Stores phone numbers
@@ -42,26 +42,26 @@ PhoneForward * phfwdNew(void);
 void phfwdDelete(PhoneForward *pf);
 
 /** @brief Adds a redirection.
- *  Adds a forwarding of the all numbers beginnign with the prefix @p num1
+ *  Adds a forwarding of the all numbers beginning with the prefix @p num1
  *  to the numbers, whose given prefix has been correspondingly substituted
  *  with @p num2. Each number is its own prefix. If a redirection with the same
  *  @p num1 parameter has been added before, this redirection is replaced.
  *
- *  Forwarding relation is not transitive.
+ *  Phone numbers forwarding relation is not transitive.
  *
  * @param[in, out] pfd - a pointer to the structure storing number redirections;
  * @param[in] num1 - a pointer to the string representing the prefix of
  *                   the redirected numbers;
  * @param[in] num2 - a pointer to the string representing the prefix of
  *                   the numbers to whom the redirection is performed.
- * @return The value @p true, if the redirection has been added.
- *         The value @p false, if an error ocurred, i.e. the given prefix
- *         does not represent a number, both passed numbers are identical
- *         or the memory could not have been allocated.
+ * @return The value of @p true, if the redirection has been added.
+ *         The value of @p false, if an error occurred, i.e. the given prefix
+ *         does not represent a number, the passed numbers are identical
+ *         or enough memory could not have been allocated.
  */
 bool phfwdAdd(PhoneForward *pfd, char const *num1, char const *num2);
 
-/** @brief Removes a redirection.
+/** @brief Removes redirections.
  * Removes all redirections, in which the parameter @p num is a prefix
  * of the parameter @p num1 used in redirection inclusion (phfwdAdd). If there
  * are no such redirections or the string does not represent a number,
@@ -87,7 +87,7 @@ void phfwdRemove(PhoneForward *pf, char const *num);
  */
 PhoneNumbers * phfwdGet(PhoneForward const *pf, char const *num);
 
-/** @brief Assigns a redirection to the given number.
+/** @brief Assigns prefix redirected to the given number.
  * Assigns the following sequence of numbers to the given number: if there
  * exists a number @p x such that the result of calling @p phfwdGet
  * with the number @p x includes the number @p num, then the number @p x
@@ -105,7 +105,7 @@ PhoneNumbers * phfwdGet(PhoneForward const *pf, char const *num);
 PhoneNumbers * phfwdReverse(PhoneForward const *pf, char const *num);
 
 /** @brief Removes a structure.
- * Removes a structure pointed to by @p num. It does nothing if the pointer
+ * Removes a structure pointed to by @p pnum. It does nothing if the pointer
  * is NULL.
  *
  * @param[in] pnum - a pointer to the stucture to be removed.
@@ -113,10 +113,10 @@ PhoneNumbers * phfwdReverse(PhoneForward const *pf, char const *num);
 void phnumDelete(PhoneNumbers *pnum);
 
 /** @brief Provides a number.
- * Provides a pointer to the string representing a number. Strings (char
- * arrays) are indexed from zero.
+ * Provides a pointer to the string representing a number. Strings are indexed
+ * from zero.
  *
- * @param[in] pnum - a pointer to the structure storing a sequence of numbers;
+ * @param[in] pnum - a pointer to the structure storing the sequence of numbers;
  * @param[in] idx - an index of the phone number.
  * @return A pointer to the string representing a phone number.
  *         Tha value of NULL if @p pnum is NULL or the index is too large.
