@@ -175,20 +175,26 @@ PhoneForward * phfwdNew(void) {
 bool addForwardedNode(InitialNode* toBeForwarded, ForwardedNode* finalForward) {
     uint64_t * slots = &(finalForward->numSlotsForNodes);
     uint64_t * numNodes = &(finalForward->numForwardedNodes);
+//    InitialNode *** initialNodeArray = &(finalForward->forwardedNodes);
 
     if (*slots <= *numNodes) {
         uint64_t newSlots = (*slots)*2 + 1;
         InitialNode ** newNodeArray = realloc(finalForward->forwardedNodes,
                                               newSlots * sizeof (InitialNode*));
+//        InitialNode ** newNodeArray = realloc(*initialNodeArray,
+//                                              newSlots * sizeof (InitialNode*));
+
         if (!newNodeArray) {
             return false;
         }
 
         finalForward->forwardedNodes = newNodeArray;
+//        *initialNodeArray = newNodeArray;
         *slots = newSlots;
     }
 
     finalForward->forwardedNodes[(*numNodes)] = toBeForwarded;
+//    (*initialNodeArray)[(*numNodes)] = toBeForwarded;
     toBeForwarded->indexForward = (*numNodes)++;
     toBeForwarded->forwardingNode = finalForward;
     (finalForward->sumForwarded)++;
