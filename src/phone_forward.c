@@ -1,6 +1,15 @@
-//
-// Created by heheszek on 05.05.22.
-//
+/** @file
+ * Interfejs klasy przechowującej przekierowania numerów telefonicznych
+ *
+ * @author Agata Momot <a.momot4@student.uw.edu.pl>
+ * @copyright Uniwersytet Warszawski
+ * @date 2022
+ */
+
+/**
+ * A macro which enables usage of strdup(char * s), which isn't included
+ * in C standard but is a POSIX extension.
+ */
 #define _DEFAULT_SOURCE
 #include <stdlib.h>
 #include <string.h>
@@ -9,10 +18,46 @@
 #include <stdbool.h>
 #include <ctype.h>
 
+/**
+ * The size of the alphabet of the telephone numbers, counting
+ * ten characters from 0 to 9 inclusively
+ */
 #define ALPHABET_SIZE   10
 
 struct ForwardedNode;
 
+/** @struct InitialNode
+ * @brief A struct describing nodes storing information for prefixes
+ * of the numbers which are supposed to be redirected.
+ * @var InitialNode::ancestor
+ *      An ancestor of the current node.
+ * @var InitialNode::forwardingNode
+ *      A pointer to the node which stores the information about redirection
+ * @var InitialNode::alphabet
+ *      An array storing pointers to children nodes which are sorted according
+ *      to the label of the edge leading to the subsequent node. The value
+ *      of an index in range from 0 to 9 unambiguously labels the edge.
+ * @var InitialNode::depth
+ *      Depth of the node in a tree, related to the accurate length
+ *      of the redirected prefix
+ * @var InitialNode::isForwarded
+ *      A flag indicating whether the given node is a terminal node for
+ *      a prefix which should redirected, therefore it is the first node
+ *      after the last edge labeled with the last digit of a number
+ *      and contains a pointer to corresponding node, representing the final
+ *      redirection.
+ * @var InitialNode::indexForward
+ *      If the given node is a terminal node for a redirected prefix,
+ *      indexForward stores the index in the array of terminal nodes
+ *      for forwarded prefixes contained in a node, which is responsible
+ *      for the final redirection
+ * @var InitialNode::filledEdges
+ *      The number of edges leaving the node, equivalent of the number
+ *      of the children and the number of indices in \link InitialNode::alphabet alphabet \endlink
+ *      which do not indicate NULL.
+ * @var InitialNode::
+ * @var InitialNode::
+ */
 typedef struct InitialNode {
     struct InitialNode* ancestor;
     struct ForwardedNode* forwardingNode;
@@ -20,12 +65,17 @@ typedef struct InitialNode {
     uint64_t depth;
     uint8_t isForwarded;
     uint64_t indexForward;
-    uint64_t filledEdges;
+    int filledEdges;
     int edgeLeadingTo;
     int lastChecked;
     char* initialPrefix;
 } InitialNode;
 
+/** @struct ForwardedNode
+ *  @brief  A struct representing a node stroing information about the final
+ *          redirection.
+ *  @var ForwardedNode::forwardedNodes
+ */
 typedef struct ForwardedNode {
     struct ForwardedNode* ancestor;
     struct ForwardedNode* alphabet[ALPHABET_SIZE];
@@ -60,6 +110,12 @@ static void clearBitForward(uint8_t * flag) {
     *flag &= ~(uint8_t) 1;
 }
 
+/** @brief Chcę to gdzieś zobaczyć
+ *
+ * @param[in] flag  - a marker whose set bit indicates whether the node
+ *                    participates in forwarding
+ * @return
+ */
 static bool isForwardSet(uint8_t flag) {
     return (flag & (uint8_t) 1) != 0;
 }
