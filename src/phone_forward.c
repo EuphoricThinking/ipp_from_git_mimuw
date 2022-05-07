@@ -308,11 +308,16 @@ PhoneForward * phfwdNew(void) {
 
     result->forwardedRoot = initForwardedNode(NULL, 0, -1);
     if (!result->forwardedRoot) {
+        free(result);
+
         return NULL;
     }
 
     result->initialRoot = initInitialNode(NULL, 0, -1);
     if (!result->initialRoot) {
+        free(result->forwardedRoot);
+        free(result);
+
         return NULL;
     }
 
@@ -765,6 +770,17 @@ static PhoneNumbers * createNewPhoneNumbers() {
     return result;
 }
 
+void phnumDelete(PhoneNumbers *pnum) {
+    if (pnum) {
+        for (uint64_t i = 0; i < pnum->lastAvailableIndex; i++) {
+            free(pnum->numbers[i]);
+        }
+
+        free(pnum->numbers);
+        free(pnum);
+    }
+}
+
 PhoneNumbers * phfwdGet(PhoneForward const *pf, char const* num) {
     if (!pf) {
         return NULL;
@@ -809,6 +825,9 @@ PhoneNumbers * phfwdGet(PhoneForward const *pf, char const* num) {
     if (!lastForwardedNode) {
         result->numbers[0] = strdup(num);
         if (!result->numbers[0]) {
+            free(result->numbers);
+            free(result);
+
             return NULL;
         }
 
@@ -825,6 +844,8 @@ PhoneNumbers * phfwdGet(PhoneForward const *pf, char const* num) {
 
     char* resultingForward = malloc(finalLength);
     if (!resultingForward) {
+        phnumDelete(result);
+
         return NULL;
     }
 
@@ -836,17 +857,6 @@ PhoneNumbers * phfwdGet(PhoneForward const *pf, char const* num) {
     result->numbers[0] = resultingForward;
 
     return result;
-}
-
-void phnumDelete(PhoneNumbers *pnum) {
-    if (pnum) {
-        for (uint64_t i = 0; i < pnum->lastAvailableIndex; i++) {
-            free(pnum->numbers[i]);
-        }
-
-        free(pnum->numbers);
-        free(pnum);
-    }
 }
 
 char const * phnumGet(PhoneNumbers const *pnum, size_t idx) {
