@@ -78,7 +78,7 @@ typedef struct InitialNode {
     int edgeLeadingTo;
     int lastChecked;
     char* initialPrefix;
-} InitialNode;
+} InitialNode;  ///< Final name
 
 /** @struct ForwardedNode
  *  @brief  A struct representing a node stroing information about the final
@@ -147,7 +147,7 @@ typedef struct ForwardedNode {
     InitialNode** forwardedNodes;
     char* forwardedPrefix;
     uint64_t filledEdges;
-} ForwardedNode;
+} ForwardedNode;  ///< Final name
 
 /** @struct PhoneForward
  *  @brief A storage for root nodes for trees responsible for storing
@@ -162,7 +162,7 @@ typedef struct ForwardedNode {
 typedef struct PhoneForward {
     ForwardedNode* forwardedRoot;
     InitialNode* initialRoot;
-} PhoneForward;
+} PhoneForward;  ///< Final name
 
 /** @struct PhoneNumbers
  * @brief Struct for storing the full phone numbers retrieved from PhoneForward.
@@ -179,7 +179,8 @@ typedef struct PhoneNumbers {
     char** numbers;
     uint64_t slots;
     uint64_t lastAvailableIndex;
-} PhoneNumbers;
+} PhoneNumbers;  ///< Final name
+
 
 static void setBitForward(uint8_t * flag) {
     *flag |= (uint8_t) 1;
