@@ -38,24 +38,25 @@ PhoneForward * phfwdNew(void);
  */
 void phfwdDelete(PhoneForward *pf);
 
-/** @brief Dodaje przekierowanie.
- * Dodaje przekierowanie wszystkich numerów mających prefiks @p num1, na numery,
- * w których ten prefiks zamieniono odpowiednio na prefiks @p num2. Każdy numer
- * jest swoim własnym prefiksem. Jeśli wcześniej zostało dodane przekierowanie
- * z takim samym parametrem @p num1, to jest ono zastępowane.
- * Relacja przekierowania numerów nie jest przechodnia.
- * @param[in,out] pf – wskaźnik na strukturę przechowującą przekierowania
- *                     numerów;
- * @param[in] num1   – wskaźnik na napis reprezentujący prefiks numerów
- *                     przekierowywanych;
- * @param[in] num2   – wskaźnik na napis reprezentujący prefiks numerów,
- *                     na które jest wykonywane przekierowanie.
- * @return Wartość @p true, jeśli przekierowanie zostało dodane.
- *         Wartość @p false, jeśli wystąpił błąd, np. podany napis nie
- *         reprezentuje numeru, oba podane numery są identyczne lub nie udało
- *         się alokować pamięci.
+/** @brief Adds a redirection.
+ *  Adds a forwarding of the all numbers beginnign with the prefix @p num1
+ *  to the numbers, whose given prefix has been correspondingly substituted
+ *  with @p num2. Each number is its own prefix. If a redirection with the same
+ *  @p num1 parameter has been added before, this redirection is replaced.
+ *
+ *  Forwarding relation is not transitive.
+ *
+ * @param[in, out] pfd - a pointer to the structure storing number redirections;
+ * @param[in] num1 - a pointer to the string representing the prefix of
+ *                   the redirected numbers;
+ * @param[in] num2 - a pointer to the string representing the prefix of
+ *                   the numbers to whom the redirection is performed.
+ * @return The value @p true, if the redirection has been added.
+ *         The value @p false, if an error ocurred, i.e. the given prefix
+ *         does not represent a number, both passed numbers are identical
+ *         or the memory could not have been allocated.
  */
-bool phfwdAdd(PhoneForward *pf, char const *num1, char const *num2);
+bool phfwdAdd(PhoneForward *pfd, char const *num1, char const *num2);
 
 /** @brief Usuwa przekierowania.
  * Usuwa wszystkie przekierowania, w których parametr @p num jest prefiksem

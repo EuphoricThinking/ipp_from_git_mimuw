@@ -360,7 +360,7 @@ static bool addForwardedNode(InitialNode* toBeForwarded, ForwardedNode* finalFor
     return true;
 }
 
-/** @brief Adds prefix to node and sets a flag.
+/** @brief Adds prefix to a node and sets a flag.
  * Adds a final prefix to the terminal node corresponding to the given prefix
  * and set isForwarding flag in order to indicate that the passed node
  * participates in redirection
@@ -386,6 +386,18 @@ static bool addPrefixForwardAndSetForward(ForwardedNode* finalForward, const cha
     return true;
 }
 
+/** @brief Adds prefix to a node and sets a flag.
+ *  Adds a redirected prefix to the terminal node corresponding to the given
+ *  prefix and set isForwarded flag in order to indicate that the passed node
+ *  participates in redirection.
+ *
+ *  @param[in, out] init - the terminal node corresponding to the redirected
+ *                         prefix
+ *
+ *  @param[in] prefix - the final prefix associated with the given node.
+ *
+ *  @return False in case of memory allocation failure, true otherwise.
+ */
 static bool addPrefixInitialAndSetForward(InitialNode * init, const char* prefix) {
     // Temporary array enables saving the previous content
     char* copiedPrefix = strdup(prefix);
@@ -406,6 +418,15 @@ static bool addPrefixInitialAndSetForward(InitialNode * init, const char* prefix
     return true;
 }
 
+/** @brief Checks the length of a string.
+ *  Checks the length of a string and validates the correctness of the passed
+ *  argument.
+ *
+ * @param[in] number - char * array containing the phone number
+ *
+ * @return  The number of digit characters in a string or 0 if the string
+ *          is empty, is NULL or contains characters which are not digits.
+ */
 static size_t checkLength(const char * number) {
     if (!number) {
         return 0;
@@ -423,10 +444,34 @@ static size_t checkLength(const char * number) {
     }
 }
 
+/** @brief Converts char to int
+ * Converts char to its integer value of the number it represents.
+ *
+ * @param[in] c - char to convert
+ * @return Integer value of the number the passed char represents.
+ */
 static int getIndex(char c) {
     return c - '0';
 }
 
+/** @brief Adds a redirection.
+ *  Adds a forwarding of the all numbers beginnign with the prefix @p num1
+ *  to the numbers, whose given prefix has been correspondingly substituted
+ *  with @p num2. Each number is its own prefix. If a redirection with the same
+ *  @p num1 parameter has been added before, this redirection is replaced.
+ *
+ *  Forwarding relation is not transitive.
+ *
+ * @param[in, out] pfd - a pointer to the structure storing number redirections;
+ * @param[in] num1 - a pointer to the string representing the prefix of
+ *                   the redirected numbers;
+ * @param[in] num2 - a pointer to the string representing the prefix of
+ *                   the numbers to whom the redirection is performed.
+ * @return The value @p true, if the redirection has been added.
+ *         The value @p false, if an error occurred, i.e. the given prefix
+ *         does not represent a number, both passed numbers are identical
+ *         or the memory could not have been allocated.
+ */
 bool phfwdAdd(PhoneForward *pfd, char const *num1, char const *num2) {
     if (!pfd) {
         return false;
@@ -449,6 +494,7 @@ bool phfwdAdd(PhoneForward *pfd, char const *num1, char const *num2) {
     uint64_t depth = 0;
     InitialNode * currentInitial = pfd->initialRoot;
     int digit;
+    // Extending the path for redirected prefix
     while (depth < len1) {
         digit = getIndex(num1[depth]);
         
@@ -472,6 +518,7 @@ bool phfwdAdd(PhoneForward *pfd, char const *num1, char const *num2) {
     depth = 0;
     ForwardedNode * currentForward = pfd->forwardedRoot;
 
+    //Extending the path for the final prefix
     while (depth < len2) {
         digit = getIndex(num2[depth]);
         
@@ -504,6 +551,12 @@ bool phfwdAdd(PhoneForward *pfd, char const *num1, char const *num2) {
     return true;
 }
 
+/** @brief Removes a node.
+ *  Removes a node responsible for storing information about the final prefix
+ *  and updates information about the children in the parental node.
+ *
+ * @param[in, out] toDelete - a node to be removed from a tree.
+ */
 static void removeForwardedNode(ForwardedNode * toDelete) {
     if (toDelete) {
         ForwardedNode * ancestor = toDelete->ancestor;
@@ -519,6 +572,14 @@ static void removeForwardedNode(ForwardedNode * toDelete) {
     }
 }
 
+/** @brief Removes unnecessary nodes.
+ *  Removes unnecessary nodes from a tree, that is nodes which are not
+ *  on the path ending with a node which is terminal for a given prefix.
+ *
+ * @param currentForward - a node reponsible for storing data about
+ *                         the final prefix, which starts the chain of nodes
+ *                         removal.
+ */
 static void removeStumpsForwardedNode(ForwardedNode * currentForward) {
     while (currentForward && currentForward->filledEdges == 0
             && currentForward->sumForwarded == 0) {
@@ -532,6 +593,15 @@ static void removeStumpsForwardedNode(ForwardedNode * currentForward) {
     }
 }
 
+/** @brief Removes a redirection.
+ * Removes a redirection, which includes dereference the forwarding node
+ * in the redirected node, exclusion of the redirected node from the array
+ * of the redirected nodes, clearing the flags and removal of the potentially
+ * unnecessary nodes in the final redirection tree.
+ *
+ * @param[in, out] toDeforward - a node storing information about the redirected
+ *                               prefix
+ */
 static void removeForwardedNodeFromInitialAndRemoveInitialFromForward(
                                                 InitialNode* toDeforward) {
     ForwardedNode * finalForward = toDeforward->forwardingNode;
@@ -552,6 +622,10 @@ static void removeForwardedNodeFromInitialAndRemoveInitialFromForward(
     removeStumpsForwardedNode(finalForward);
 }
 
+/** @brief
+ *
+ * @param init
+ */
 static void removeInitialNode(InitialNode* init) {
     if (init) {
         InitialNode * ancestor = init->ancestor;
