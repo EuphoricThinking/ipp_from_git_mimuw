@@ -52,11 +52,11 @@ typedef struct PhoneNumbers {
     uint64_t lastAvailableIndex;
 } PhoneNumbers;
 
-void setBitForward(uint8_t * flag) {
+void static setBitForward(uint8_t * flag) {
     *flag |= (uint8_t) 1;
 }
 
-void clearBitForward(uint8_t * flag) {
+void static clearBitForward(uint8_t * flag) {
     *flag &= ~(uint8_t) 1;
 }
 
@@ -139,34 +139,21 @@ PhoneForward * phfwdNew(void) {
 bool addForwardedNode(InitialNode* toBeForwarded, ForwardedNode* finalForward) {
     uint64_t * slots = &(finalForward->numSlotsForNodes);
     uint64_t * numNodes = &(finalForward->numForwardedNodes);
-//    InitialNode *** initialNodeArray = &(finalForward->forwardedNodes);
-//    InitialNode ** initialNodeArray = finalForward->forwardedNodes;
 
     if (*slots <= *numNodes) {
         uint64_t newSlots = (*slots)*2 + 1;
         InitialNode ** newNodeArray = realloc(finalForward->forwardedNodes,
                                               newSlots * sizeof (InitialNode*));
 
-//        InitialNode ** newNodeArray = realloc(*initialNodeArray,
-//                                              newSlots * sizeof (InitialNode*));
-//        InitialNode ** newNodeArray = realloc(initialNodeArray,
-//                                              newSlots * sizeof (InitialNode*));
-
-
         if (!newNodeArray) {
             return false;
         }
 
         finalForward->forwardedNodes = newNodeArray;
-//        initialNodeArray = newNodeArray;
-//        finalForward->forwardedNodes = newNodeArray;
-//        *initialNodeArray = newNodeArray;
         *slots = newSlots;
     }
 
     finalForward->forwardedNodes[(*numNodes)] = toBeForwarded;
-//    initialNodeArray[(*numNodes)] = toBeForwarded;
-//    (*initialNodeArray)[(*numNodes)] = toBeForwarded;
     toBeForwarded->indexForward = (*numNodes)++;
     toBeForwarded->forwardingNode = finalForward;
     (finalForward->sumForwarded)++;
