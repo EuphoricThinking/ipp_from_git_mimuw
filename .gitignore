@@ -17,4 +17,7 @@ phone_forward
 peda-session-phone_forward.txt
 html
 html/
-
+release
+release/
+debug
+debug/

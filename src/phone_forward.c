@@ -1,5 +1,5 @@
 /** @file
- * Implementation of the class storing the number redirections
+ * Implementation of the class storing number redirections
  *
  * @author Agata Momot <a.momot4@student.uw.edu.pl>
  * @copyright Uniwersytet Warszawski
