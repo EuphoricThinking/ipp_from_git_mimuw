@@ -42,7 +42,7 @@ struct ForwardedNode;
  *      of the redirected prefix
  * @var InitialNode::isForwarded
  *      A flag indicating whether the given node is a terminal node for
- *      a prefix which should redirected, therefore it is the first node
+ *      a prefix which should be redirected, therefore it is the first node
  *      after the last edge labeled with the last digit of a number
  *      and contains a pointer to corresponding node, representing the final
  *      redirection.
@@ -53,8 +53,8 @@ struct ForwardedNode;
  *      for the final redirection
  * @var InitialNode::filledEdges
  *      The number of edges leaving the node, equivalent of the number
- *      of the children and the number of indices in \link InitialNode::alphabet alphabet \endlink
- *      which do not indicate NULL.
+ *      of the children and the number of indices in
+ *      \link InitialNode::alphabet alphabet \endlink which do not indicate NULL.
  * @var InitialNode::edgeLeadingTo
  *      The label of the edge leading to the current node, equivalent to
  *      the index value in \link InitialNode::alphabet alphabet array \endlink
@@ -83,7 +83,56 @@ typedef struct InitialNode {
 /** @struct ForwardedNode
  *  @brief  A struct representing a node stroing information about the final
  *          redirection.
+ *  @var ForwardedNode::ancestor
+ *          A parental node of the current node.
+ *  @var ForwardedNode::alphabet
+ *          An array storing pointers to children nodes which are sorted
+ *          according to the label of the edge leading to the subsequent node.
+ *          The value of an index in range from 0 to 9 unambiguously labels
+ *          the edge.
+ *  @var ForwardedNode::isForwarding
+ *          A flag indicating whether the given node is a terminal node for
+ *          a prefix describing the final substitution, therefore it is
+ *          the first node after the last edge labeled with the last digit of
+ *          a number and contains an array of pointers to the nodes which
+ *          are terminal nodes for the prefixes redirected to the given
+ *          forwarding prefix.
+ *  @var ForwardedNode::numForwardedNodes
+ *          An index of the last slot available for storing a redirected node.
+ *  @var ForwardedNode::sumForwarded
+ *          The sum of the nodes currently redirected to the given node.
+ *          Enables exclusion of the NULL slots, freed after redirection removal.
+ *  @var ForwardedNode::depth
+ *          Depth of the node in a tree, related to the accurate length
+ *          of the redirected prefix
+ *  @var ForwardedNode::numSlotsForNodes
+ *          The number of available slots for storing the pointers to
+ *          the redirected nodes, regarding the size of the memory allocated
+ *          for \link ForwardedNode::forwardedNodes redirected nodes array
+ *          \endlink - includes both non-occupied and assigned slots.
+ *  @var ForwardedNode::edgeLeadingTo
+ *          The label of the edge leading to the current node, equivalent to
+ *          the index value in \link ForwardedNode::alphabet alphabet array
+ *          \endlink of the parent.
+ *  @var ForwardedNode::lastChecked
+ *          The index of the last checked element in \link
+ *          ForwardedNode::alphabet alphabet array \endlink, used in iterative
+ *          tree traversal.
  *  @var ForwardedNode::forwardedNodes
+ *          If the given node is terminal for the given final prefix,
+ *          it stores the array of pointers to InitialNode nodes,
+ *          which are terminal for the prefixes supposed to be redirected.
+ *          If the redirection is removed, NULL is placed at the index
+ *          indicating the pointer to a given node.
+ *  @var ForwardedNode::forwardedPrefix
+ *          The string associated with the prefix terminating in the current
+ *          node, saved for speed-up of redirection lookup and for the future
+ *          implementation of the ReverseFunction
+ *  @var ForwardedNode::filledEdges
+ *          The number of edges leaving the node, equivalent of the number
+ *          of the children and the number of indices in
+ *          \link ForwardedNode::alphabet alphabet \endlink which do not
+ *          indicate NULL.
  */
 typedef struct ForwardedNode {
     struct ForwardedNode* ancestor;
