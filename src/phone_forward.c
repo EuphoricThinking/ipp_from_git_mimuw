@@ -300,12 +300,6 @@ static ForwardedNode * initForwardedNode(ForwardedNode* ancestor, uint64_t depth
     return result;
 };
 
-/** @brief Creates a new structure.
- * Creates a new structure which does not contain any data about redirection.
- *
- * @return  A pointer to the created structure or NULL in case of memory
- *          allocation failure.
- */
 PhoneForward * phfwdNew(void) {
     PhoneForward * result = malloc(sizeof(PhoneForward));
     if (!result) {
@@ -454,24 +448,6 @@ static int getIndex(char c) {
     return c - '0';
 }
 
-/** @brief Adds a redirection.
- *  Adds a forwarding of the all numbers beginnign with the prefix @p num1
- *  to the numbers, whose given prefix has been correspondingly substituted
- *  with @p num2. Each number is its own prefix. If a redirection with the same
- *  @p num1 parameter has been added before, this redirection is replaced.
- *
- *  Forwarding relation is not transitive.
- *
- * @param[in, out] pfd - a pointer to the structure storing number redirections;
- * @param[in] num1 - a pointer to the string representing the prefix of
- *                   the redirected numbers;
- * @param[in] num2 - a pointer to the string representing the prefix of
- *                   the numbers to whom the redirection is performed.
- * @return The value @p true, if the redirection has been added.
- *         The value @p false, if an error occurred, i.e. the given prefix
- *         does not represent a number, both passed numbers are identical
- *         or the memory could not have been allocated.
- */
 bool phfwdAdd(PhoneForward *pfd, char const *num1, char const *num2) {
     if (!pfd) {
         return false;
@@ -573,10 +549,10 @@ static void removeForwardedNode(ForwardedNode * toDelete) {
 }
 
 /** @brief Removes unnecessary nodes.
- *  Removes unnecessary nodes from a tree, that is nodes which are not
- *  on the path ending with a node which is terminal for a given prefix.
+ *  Removes unnecessary nodes from a tree: nodes which are not on the path
+ *  ending with a node regarded as terminal for the given prefix.
  *
- * @param currentForward - a node reponsible for storing data about
+ * @param currentForward - a node responsible for storing data about
  *                         the final prefix, which starts the chain of nodes
  *                         removal.
  */
@@ -622,9 +598,11 @@ static void removeForwardedNodeFromInitialAndRemoveInitialFromForward(
     removeStumpsForwardedNode(finalForward);
 }
 
-/** @brief
+/** @brief Removes a node.
+ * Removes a node responsible for storing information about the redirected
+ * prefix and updates information about the children in the parental node.
  *
- * @param init
+ * @param[in, out] init - a node to be removed from a tree.
  */
 static void removeInitialNode(InitialNode* init) {
     if (init) {
@@ -639,6 +617,14 @@ static void removeInitialNode(InitialNode* init) {
     }
 }
 
+/** @brief Removes unnecessary nodes.
+ *  Removes unnecessary nodes from a tree: nodes which are not on the path
+ *  ending with a node regarded as terminal for the given prefix.
+ *
+ * @param currentInitial - a node responsible for storing data about
+ *                         the redirected prefix, which starts the chain of
+ *                         nodes removal.
+ */
 static void removeStumpsInitialNode(InitialNode * currentInitial) {
     while (currentInitial && currentInitial->filledEdges == 0 &&
            !(isForwardSet(currentInitial->isForwarded))) {
@@ -752,6 +738,12 @@ void phfwdDelete(PhoneForward * pf) {
     }
 }
 
+/** @brief Creates and initializes a structure.
+ * Creates and initializes a PhoneNumbers structure. The resulting structure
+ * has allocated memory with an empty slot.
+ *
+ * @return A pointer to initialized @p PhoneNumbers structure.
+ */
 static PhoneNumbers * createNewPhoneNumbers() {
     PhoneNumbers * result = malloc(sizeof (PhoneNumbers));
     if (!result) {
@@ -763,9 +755,10 @@ static PhoneNumbers * createNewPhoneNumbers() {
         return NULL;
     }
 
+    // The reallocation should occur analogously to adding nodes
     result->numbers[0] = NULL;
     result->slots = 1;
-    result->lastAvailableIndex = 1; //reallocation should occur analogously to adding nodes"
+    result->lastAvailableIndex = 1;
     
     return result;
 }

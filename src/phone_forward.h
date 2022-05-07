@@ -24,17 +24,19 @@ typedef struct PhoneForward PhoneForward;  ///< Przechowuje dane o przekierowani
 struct PhoneNumbers;
 typedef struct PhoneNumbers PhoneNumbers;  ///< Final name
 
-/** @brief Tworzy nową strukturę.
- * Tworzy nową strukturę niezawierającą żadnych przekierowań.
- * @return Wskaźnik na utworzoną strukturę lub NULL, gdy nie udało się
- *         alokować pamięci.
+/** @brief Creates a new structure.
+ * Creates a new structure which does not contain any redirections.
+ *
+ * @return  A pointer to the created structure or NULL in case of memory
+ *          allocation failure.
  */
 PhoneForward * phfwdNew(void);
 
-/** @brief Usuwa strukturę.
- * Usuwa strukturę wskazywaną przez @p pf. Nic nie robi, jeśli wskaźnik ten ma
- * wartość NULL.
- * @param[in] pf – wskaźnik na usuwaną strukturę.
+/** @brief Removes a structure.
+ * Removes a structure pointed to by @p pf. It does nothing if this pointer
+ * is NULL.
+ *
+ * @param[in] pf - a pointer to the structure to be deleted.
  */
 void phfwdDelete(PhoneForward *pf);
 
@@ -58,27 +60,29 @@ void phfwdDelete(PhoneForward *pf);
  */
 bool phfwdAdd(PhoneForward *pfd, char const *num1, char const *num2);
 
-/** @brief Usuwa przekierowania.
- * Usuwa wszystkie przekierowania, w których parametr @p num jest prefiksem
- * parametru @p num1 użytego przy dodawaniu. Jeśli nie ma takich przekierowań
- * lub napis nie reprezentuje numeru, nic nie robi.
- * @param[in,out] pf – wskaźnik na strukturę przechowującą przekierowania
- *                     numerów;
- * @param[in] num    – wskaźnik na napis reprezentujący prefiks numerów.
+/** @brief Removes a redirection.
+ * Removes all redirections, in which the parameter @p num is a prefix
+ * of the parameter @p num1 used in redirection inclusion (phfwdAdd). If there
+ * are no such redirections or the string does not represent a number,
+ * the function does nothing.
+ *
+ * @param[in, out] pf - a pointer to a structure storing number redirections;
+ * @param[in] num - a pointer to the string representing the prefix of numbers.
  */
 void phfwdRemove(PhoneForward *pf, char const *num);
 
-/** @brief Wyznacza przekierowanie numeru.
- * Wyznacza przekierowanie podanego numeru. Szuka najdłuższego pasującego
- * prefiksu. Wynikiem jest ciąg zawierający co najwyżej jeden numer. Jeśli dany
- * numer nie został przekierowany, to wynikiem jest ciąg zawierający ten numer.
- * Jeśli podany napis nie reprezentuje numeru, wynikiem jest pusty ciąg.
- * Alokuje strukturę @p PhoneNumbers, która musi być zwolniona za pomocą
- * funkcji @ref phnumDelete.
- * @param[in] pf  – wskaźnik na strukturę przechowującą przekierowania numerów;
- * @param[in] num – wskaźnik na napis reprezentujący numer.
- * @return Wskaźnik na strukturę przechowującą ciąg numerów lub NULL, gdy nie
- *         udało się alokować pamięci.
+/** @brief Assigns the number redirection.
+ * Assigns the redirection to the given number. Looks for the longest common
+ * prefix. The result is the sequence containing at most one number.
+ * If the given number has not been redirected, the result is the sequence
+ * containing this one number. If the given string does not represent a number,
+ * the result is an empty sequence. Allocates the structure @p PhoneNumbers,
+ * which should be freed with the function @ref phnumDelete.
+ *
+ * @param[in] pf - a pointer to the structure storing number redirections.
+ * @param[in] num - a pointer to the string representing the number.
+ * @return A pointer to the structure storing the sequence of numbers
+ *         or NULL in case of memory allocation failure.
  */
 PhoneNumbers * phfwdGet(PhoneForward const *pf, char const *num);
 
@@ -97,20 +101,22 @@ PhoneNumbers * phfwdGet(PhoneForward const *pf, char const *num);
  */
 PhoneNumbers * phfwdReverse(PhoneForward const *pf, char const *num);
 
-/** @brief Usuwa strukturę.
- * Usuwa strukturę wskazywaną przez @p pnum. Nic nie robi, jeśli wskaźnik ten ma
- * wartość NULL.
- * @param[in] pnum – wskaźnik na usuwaną strukturę.
+/** @brief Removes a structure.
+ * Removes a structure pointed to by @p num. It does nothing if the pointer
+ * is NULL.
+ *
+ * @param[in] pnum - a pointer to the stucture to be removed.
  */
 void phnumDelete(PhoneNumbers *pnum);
 
-/** @brief Udostępnia numer.
- * Udostępnia wskaźnik na napis reprezentujący numer. Napisy są indeksowane
- * kolejno od zera.
- * @param[in] pnum – wskaźnik na strukturę przechowującą ciąg numerów telefonów;
- * @param[in] idx  – indeks numeru telefonu.
- * @return Wskaźnik na napis reprezentujący numer telefonu. Wartość NULL, jeśli
- *         wskaźnik @p pnum ma wartość NULL lub indeks ma za dużą wartość.
+/** @brief Provides a number.
+ * Provides a pointer to the string representing a number. Strings (char
+ * arrays) are indexed from zero.
+ *
+ * @param[in] pnum - a pointer to the structure storing a sequence of numbers;
+ * @param[in] idx - an index of the phone number.
+ * @return A pointer to the string representing a phone number.
+ *         Tha value of NULL if @p pnum is NULL or the index is too large.
  */
 char const * phnumGet(PhoneNumbers const *pnum, size_t idx);
 
