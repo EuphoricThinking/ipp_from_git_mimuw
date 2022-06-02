@@ -940,6 +940,35 @@ char const * phnumGet(PhoneNumbers const *pnum, size_t idx) {
     }
 }
 
+int customStrcmp(const char* first, const char* second) {
+    int index = 0;
+    int result = 0;
+    while (first[index] != '\0' && second[index] != '\0' && result == 0) {
+        result = getIndex(first[index]) - getIndex(second[index]);
+        index++;
+    }
+
+    /*
+     * Both sequences have been equal up to the point one of them ended.
+     * The first one is shorter, therefore - smaller lexicographically.
+     */
+    if (first[index] == '\0' && second[index] != '\0') {
+        return -1;
+    }
+    /*
+     * Both sequences have been equal up to the point one of them ended.
+     * The first one is longer, therefore - greater lexicographically.
+     */
+    else if (first[index] != '\0' && second[index] == '\0') {
+        return 1;
+    }
+    /*
+     * Both sequences have equal length.
+     */
+    else {
+        return result;
+    }
+}
 /** @brief Assigns a redirection to the given number.
  * Assigns the following sequence of numbers to the given number: if there
  * exists a number @p x such that the result of calling @p phfwdGet
