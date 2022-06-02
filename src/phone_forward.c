@@ -951,7 +951,7 @@ char const * phnumGet(PhoneNumbers const *pnum, size_t idx) {
  * it reutrns negative value; if the first string is greater - it returns
  * positive value; zero in case of equal strings.
  */
-int customStrcmp(const char* first, const char* second) {
+static int customStrcmp(const char* first, const char* second) {
     int index = 0;
     int result = 0;
     while (first[index] != '\0' && second[index] != '\0' && result == 0) {
@@ -991,6 +991,33 @@ int customStrcmp(const char* first, const char* second) {
         return result;
     }
 }
+
+/** @brief Customized comparator.
+ * Customized comparator for string comparison, used in qsort(...).
+ * Part of the function description covers qsort documentation.
+ *
+ * @param[in] p1 - the first char array to compare.
+ * @param[in] p2 - the second char array to compare.
+ * @return An integer less than, equal to or greater than zero
+ * if the first argument is considered to be respectively less than,
+ * equal to or greater than the second.
+ */
+static int comparatorStrings(const void *p1, const void *p2) {
+    return customStrcmp(* (char * const *) p1, * (char* const *) p2);
+}
+
+/** @brief Customized qsort.
+ * Customized version of qsort for sorting char arrays, using previusly defined
+ * helper function for handling string comparison.
+ *
+ * @param[in] array - A char array to be sorted.
+ * @param numMembersToCompare - The number of members in the array
+ * to be compared.
+ */
+void sortCharArray(char* array, size_t numMembersToCompare) {
+    qsort(array, numMembersToCompare, sizeof(char *), comparatorStrings);
+}
+
 /** @brief Assigns a redirection to the given number.
  * Assigns the following sequence of numbers to the given number: if there
  * exists a number @p x such that the result of calling @p phfwdGet
