@@ -20,9 +20,23 @@
 
 /**
  * The size of the alphabet of the telephone numbers, counting
- * ten characters from 0 to 9 inclusively.
+ * ten characters from 0 to 11 inclusively.
  */
-#define ALPHABET_SIZE   10
+#define ALPHABET_SIZE       12
+
+/**
+ * ASCII code for a character representing a digit zero, corresponding to
+ * the beginning of the sequence encoding characters representing digits
+ * in ASCII table.
+ */
+#define DIGIT_ASCII_START   48
+
+/**
+ * ASCII code for a character representing a digit nine, corresponding to
+ * the end of the sequence encoding characters representing digits
+ * in ASCII table.
+ */
+#define DIGIT_ASCII_END     57
 
 struct ForwardedNode;
 

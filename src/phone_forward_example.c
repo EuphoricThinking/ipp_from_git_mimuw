@@ -58,21 +58,21 @@ printf("adteradd\n");
   phnumDelete(pnum);
 
   pnum = phfwdReverse(pf, "432");
-//  assert(strcmp(phnumGet(pnum, 0), "431") == 0);
-//  assert(strcmp(phnumGet(pnum, 1), "432") == 0);
-//  assert(phnumGet(pnum, 2) == NULL);
+  assert(strcmp(phnumGet(pnum, 0), "431") == 0);
+  assert(strcmp(phnumGet(pnum, 1), "432") == 0);
+  assert(phnumGet(pnum, 2) == NULL);
   phnumDelete(pnum);
 
   pnum = phfwdReverse(pf, "433");
   if (pnum) printf("NOT FUCK\n");
-//  assert(strcmp(phnumGet(pnum, 0), "432") == 0);
-//  assert(strcmp(phnumGet(pnum, 1), "433") == 0);
-//  assert(phnumGet(pnum, 2) == NULL);
+  assert(strcmp(phnumGet(pnum, 0), "432") == 0);
+  assert(strcmp(phnumGet(pnum, 1), "433") == 0);
+  assert(phnumGet(pnum, 2) == NULL);
   phnumDelete(pnum);
 
   pnum = phfwdReverse(pf, "987654321");
-//  assert(strcmp(phnumGet(pnum, 0), "12387654321") == 0);
-//  assert(strcmp(phnumGet(pnum, 1), "987654321") == 0);
+  assert(strcmp(phnumGet(pnum, 0), "12387654321") == 0);
+  assert(strcmp(phnumGet(pnum, 1), "987654321") == 0);
   assert(phnumGet(pnum, 2) == NULL);
   phnumDelete(pnum);
 
@@ -83,7 +83,7 @@ printf("adteradd\n");
   phnumDelete(pnum);
 
   pnum = phfwdReverse(pf, "987654321");
-//  assert(strcmp(phnumGet(pnum, 0), "987654321") == 0);
+  assert(strcmp(phnumGet(pnum, 0), "987654321") == 0);
   assert(phnumGet(pnum, 1) == NULL);
   phnumDelete(pnum);
 
@@ -91,8 +91,8 @@ printf("adteradd\n");
   assert(phfwdAdd(pf, "5678", "08") == true);
 
   pnum = phfwdReverse(pf, "08");
-//  assert(strcmp(phnumGet(pnum, 0), "08") == 0);
-//  assert(strcmp(phnumGet(pnum, 1), "5678") == 0);
+  assert(strcmp(phnumGet(pnum, 0), "08") == 0);
+  assert(strcmp(phnumGet(pnum, 1), "5678") == 0);
   assert(phnumGet(pnum, 2) == NULL);
   phnumDelete(pnum);
 
@@ -118,9 +118,9 @@ printf("adteradd\n");
   phfwdAdd(pf, "2", "4");
   phfwdAdd(pf, "23", "4");
   pnum = phfwdReverse(pf, "434");
-//  assert(strcmp(phnumGet(pnum, 0), "2334") == 0);
-//  assert(strcmp(phnumGet(pnum, 1), "234") == 0);
-//  assert(strcmp(phnumGet(pnum, 2), "434") == 0);
+  assert(strcmp(phnumGet(pnum, 0), "2334") == 0);
+  assert(strcmp(phnumGet(pnum, 1), "234") == 0);
+  assert(strcmp(phnumGet(pnum, 2), "434") == 0);
   assert(phnumGet(pnum, 3) == NULL);
   phnumDelete(pnum);
 
@@ -139,7 +139,7 @@ printf("adteradd\n");
   assert(strcmp(phnumGet(pnum, 0), "7581") == 0);
   phnumDelete(pnum);
   pnum = phfwdReverse(pf, "7581");
-//  assert(strcmp(phnumGet(pnum, 0), "7581") == 0);
+  assert(strcmp(phnumGet(pnum, 0), "7581") == 0);
   assert(phnumGet(pnum, 1) == NULL);
   phnumDelete(pnum);
   phfwdDelete(pf);
