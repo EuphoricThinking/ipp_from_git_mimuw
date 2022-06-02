@@ -957,5 +957,20 @@ char const * phnumGet(PhoneNumbers const *pnum, size_t idx) {
  */
 PhoneNumbers * phfwdReverse(__attribute__((unused)) PhoneForward const * pf,
                             __attribute__((unused)) char const *num) {
+    if (!pf) {
+        return NULL;
+    }
+
+    size_t len = checkLength(num);
+    PhoneNumbers * result = createNewPhoneNumbers();
+
+    if (!result) {
+        return NULL;
+    }
+
+    if (len == 0) {
+        return result;
+    }
+
     return NULL;
 }
