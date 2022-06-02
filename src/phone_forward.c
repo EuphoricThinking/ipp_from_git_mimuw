@@ -25,18 +25,38 @@
 #define ALPHABET_SIZE       12
 
 /**
- * ASCII code for a character representing a digit zero, corresponding to
+ * ASCII code for the character representing the digit zero, corresponding to
  * the beginning of the sequence encoding characters representing digits
  * in ASCII table.
  */
 #define DIGIT_ASCII_START   48
 
 /**
- * ASCII code for a character representing a digit nine, corresponding to
+ * ASCII code for the character representing the digit nine, corresponding to
  * the end of the sequence encoding characters representing digits
  * in ASCII table.
  */
 #define DIGIT_ASCII_END     57
+
+/**
+ * The character representing the number ten.
+ */
+#define TEN '*'
+
+/**
+ * The character representing the number eleven.
+ */
+#define ELEVEN '#'
+
+/**
+ * The value of the tenth digit.
+ */
+#define TEN_VALUE 10
+
+/**
+ * The value of the eleventh digit.
+ */
+#define ELEVEN_VALUE 11
 
 struct ForwardedNode;
 
@@ -474,7 +494,17 @@ static size_t checkLength(const char * number) {
  * @return The integer value of the number the passed char represents graphically.
  */
 static int getIndex(char c) {
-    return c - '0';
+    if (c >= DIGIT_ASCII_START && c <= DIGIT_ASCII_END) {
+        return c - '0';
+    }
+    else {
+        if (c == TEN) {
+            return TEN_VALUE;
+        }
+        else {
+            return ELEVEN_VALUE;
+        }
+    }
 }
 
 bool phfwdAdd(PhoneForward *pfd, char const *num1, char const *num2) {
