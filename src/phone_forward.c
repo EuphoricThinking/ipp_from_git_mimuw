@@ -461,6 +461,20 @@ static bool addPrefixInitialAndSetForward(InitialNode * init,
     return true;
 }
 
+static bool isPhoneDigit(char c) {
+    if (isdigit(c)) {
+        return true;
+    }
+    else {
+        if (c == TEN || c == ELEVEN) {
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+}
+
 /** @brief Checks the length of a string.
  *  Checks the length of a string and validates the correctness of the passed
  *  argument.
@@ -477,7 +491,7 @@ static size_t checkLength(const char * number) {
 
     size_t index = 0;
 
-    while (isdigit(number[index]) && number[index] != '\0') index++;
+    while (isPhoneDigit(number[index]) && number[index] != '\0') index++;
 
     if (number[index] != '\0') {
         return 0;
