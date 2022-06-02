@@ -940,6 +940,17 @@ char const * phnumGet(PhoneNumbers const *pnum, size_t idx) {
     }
 }
 
+/** @brief Customized strcmp.
+ * Customized version of strcmp string comparing function, which is extended
+ * with additional alphabet numbers and their values
+ *
+ * @param[in] first - the first char array to compare.
+ * @param[in] second - the second char array to compare
+ * @return The result of lexicographic comparison equivalent to the result
+ * of standard strcmp(...): if the first string is smaller lexicographically
+ * it reutrns negative value; if the first string is greater - it returns
+ * positive value; zero in case of equal strings.
+ */
 int customStrcmp(const char* first, const char* second) {
     int index = 0;
     int result = 0;
@@ -949,22 +960,33 @@ int customStrcmp(const char* first, const char* second) {
     }
 
     /*
-     * Both sequences have been equal up to the point one of them ended.
-     * The first one is shorter, therefore - smaller lexicographically.
+     * Evaluation of the terminating conditions of the loop. In one iteration,
+     * the result might have been changed to negative or positive value,
+     * but the loop stopped after entering sufficient length condition
+     * in the next iteration.
      */
-    if (first[index] == '\0' && second[index] != '\0') {
-        return -1;
+    if (result == 0) {
+        /*
+         * Both sequences have been equal up to the point one of them ended.
+         * The first one is shorter, therefore - smaller lexicographically.
+         */
+        if (first[index] == '\0' && second[index] != '\0') {
+            return -1;
+        }
+        /*
+         * Both sequences have been equal up to the point one of them ended.
+         * The first one is longer, therefore - greater lexicographically.
+         */
+        else if (first[index] != '\0' && second[index] == '\0') {
+            return 1;
+        }
+        /*
+         * Both sequences have equal length.
+         */
+        else {
+            return result;
+        }
     }
-    /*
-     * Both sequences have been equal up to the point one of them ended.
-     * The first one is longer, therefore - greater lexicographically.
-     */
-    else if (first[index] != '\0' && second[index] == '\0') {
-        return 1;
-    }
-    /*
-     * Both sequences have equal length.
-     */
     else {
         return result;
     }
