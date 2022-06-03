@@ -395,6 +395,14 @@ static bool addForwardedNode(InitialNode* toBeForwarded, ForwardedNode*
         *slots = newSlots;
     }
 
+    if (isForwardSet(toBeForwarded->isForwarded)) {
+        ForwardedNode * previousForward = toBeForwarded->forwardingNode;
+        uint64_t previousIndex = toBeForwarded->indexForward;
+
+        previousForward->forwardedNodes[previousIndex] = NULL;
+        (previousForward->sumForwarded)--;
+    }
+
     finalForward->forwardedNodes[(*numNodes)] = toBeForwarded;
     toBeForwarded->indexForward = (*numNodes)++;
     toBeForwarded->forwardingNode = finalForward;
@@ -1239,7 +1247,7 @@ PhoneNumbers * phfwdReverse(__attribute__((unused)) PhoneForward const * pf,
                 return NULL;
             }
         }
-        printf("\n");
+        // printf("\n");
 
         if (currentForward->alphabet[digit]) {
             currentForward = currentForward->alphabet[digit];
