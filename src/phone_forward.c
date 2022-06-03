@@ -1103,18 +1103,29 @@ static void removeDuplicateNumbersAfterQsort(PhoneNumbers* sorted) {
                     left++;
         }
 
-        uint64_t notNUll = 1;
-        char* temp;
-        while (notNUll < sorted->lastAvailableIndex) {
-            while (!sorted->numbers[notNUll]) {
-                notNUll++;
-            }
+        left = 0;
+        right = 1;
+        while (left < (sorted->lastAvailableIndex - 1)
+               && right < sorted->lastAvailableIndex) {
+             while (right < sorted->lastAvailableIndex && !sorted->numbers[right]) {
+                 right++;
+             }
 
-            while (!sorted->numbers[notNUll - 1]) {
-                sorted->numbers[notNUll - 1] = sorted->numbers[notNUll];
-                sorted->numbers[notNUll] = NULL;
-                notNUll--;
-            }
+             if (right == sorted->lastAvailableIndex) {
+                 break;
+             }
+
+             while ((left + 1) < right && sorted->numbers[left]) {
+                 left++;
+             }
+
+             if (!sorted->numbers[left] && sorted->numbers[right]) {
+                 sorted->numbers[left] = sorted->numbers[right];
+                 sorted->numbers[right] = NULL;
+             }
+
+             left++;
+             right++;
         }
     }
 }
