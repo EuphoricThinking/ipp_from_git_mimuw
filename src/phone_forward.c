@@ -1018,6 +1018,33 @@ void sortCharArray(char* array, size_t numMembersToCompare) {
     qsort(array, numMembersToCompare, sizeof(char *), comparatorStrings);
 }
 
+/** @brief Adding new number to PhoneNumbers
+ *
+ * @param reversed
+ * @param pointerToBeOwned
+ * @return
+ */
+static bool addReversedNumber(PhoneNumbers* reversed, char* pointerToBeOwned) {
+    uint64_t * slots = &(reversed->slots);
+    uint64_t * lastIndex = &(reversed->lastAvailableIndex);
+
+    if (*slots <= lastIndex) {
+        uint64_t newSlots = (*slots)*2 + 1;
+        char** newNumbers = realloc(reversed->numbers, newSlots * sizeof(char*));
+
+        if (!newNumbers) {
+            return false;
+        }
+
+        reversed->numbers = newNumbers;
+        *slots = newSlots;
+    }
+
+    reversed->numbers[(*lastIndex)++] = pointerToBeOwned;
+
+    return true;
+}
+
 /** @brief Assigns a redirection to the given number.
  * Assigns the following sequence of numbers to the given number: if there
  * exists a number @p x such that the result of calling @p phfwdGet
