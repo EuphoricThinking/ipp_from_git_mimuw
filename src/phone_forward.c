@@ -1026,7 +1026,7 @@ static int comparatorStrings(const void *p1, const void *p2) {
  * helper function for handling string comparison.
  *
  * @param[in] array - A char array to be sorted.
- * @param numMembersToCompare - The number of members in the array
+ * @param[in] numMembersToCompare - The number of members in the array
  * to be compared.
  */
 void sortCharArray(char** array, size_t numMembersToCompare) {
@@ -1040,8 +1040,8 @@ void sortCharArray(char** array, size_t numMembersToCompare) {
  * the array and owned by the structure to avoid double frees and memory leaks;
  * the pointer needs to be freed by @ref phnumDelete.
  *
- * @param reversed - the structure storing reconstructing numbers.
- * @param pointerToBeOwned - the pointer to the reconstructed phone number.
+ * @param[in, out] reversed - the structure storing reconstructing numbers.
+ * @param[in] pointerToBeOwned - the pointer to the reconstructed phone number.
  * @return @p False in case of memory allocation failure, @p true otherwise.
  */
 static bool addReversedNumber(PhoneNumbers* reversed, char* pointerToBeOwned) {
@@ -1069,7 +1069,7 @@ static bool addReversedNumber(PhoneNumbers* reversed, char* pointerToBeOwned) {
  * Removes duplicates from the array of the sorted phone numbers,
  * recreated in @ref recreateOriginalPhoneNumbers.
  *
- * @param sorted - the sorted char** array of the reconstructed numbers.
+ * @param[in, out] sorted - the sorted char** array of the reconstructed numbers.
  */
 static void removeDuplicateNumbersAfterQsort(PhoneNumbers* sorted) {
     if (sorted->lastAvailableIndex > 0) {
@@ -1173,9 +1173,9 @@ static void removeDuplicateNumbersAfterQsort(PhoneNumbers* sorted) {
  *
  * @param[in] finalRedirection - the node representing the prefix
  *                               after forwarding.
- * @param arrayLength - the length of the phone number after forwarding.
- * @param num - the phone number after forwarding
- * @param results - the structure storing reconstructed phone numbers.
+ * @param[in] arrayLength - the length of the phone number after forwarding.
+ * @param[in] num - the phone number after forwarding
+ * @param[in, out] results - the structure storing reconstructed phone numbers.
  * @return @p False in case of memory allocation failure, @p true otherwise.
  */
 static bool recreateOriginalPhoneNumbers(ForwardedNode* finalRedirection,
@@ -1226,7 +1226,7 @@ static bool recreateOriginalPhoneNumbers(ForwardedNode* finalRedirection,
  * which should be freed using the function @ref phnumDelete.
  *
  * @param[in] pf - a pointer to the structure storing number redirections;
- * @param num - a pointer to the string representing a number.
+ * @param[in] num - a pointer to the string representing a number.
  * @return A pointer to the structure storing the sequence of numbers
  *         or NULL in case of memory allocation failure.
  */
