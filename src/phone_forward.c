@@ -397,6 +397,9 @@ static bool addForwardedNode(InitialNode* toBeForwarded, ForwardedNode*
 
     finalForward->forwardedNodes[(*numNodes)] = toBeForwarded;
     toBeForwarded->indexForward = (*numNodes)++;
+//    if (finalForward->forwardedNodes[toBeForwarded->indexForward] != toBeForwarded) {
+//        printf("NOT");
+//    }
     toBeForwarded->forwardingNode = finalForward;
     (finalForward->sumForwarded)++;
 
@@ -523,6 +526,85 @@ static int getIndex(char c) {
     }
 }
 
+
+/** @brief Removes a node.
+ *  Removes a node responsible for storing information about the final prefix
+ *  and updates information about the children in the parental node.
+ *
+ * @param[in, out] toDelete - a node to be removed from a tree.
+ */
+static void removeForwardedNode(ForwardedNode * toDelete) {
+    if (toDelete) {
+        ForwardedNode * ancestor = toDelete->ancestor;
+
+        if (ancestor) {
+            ancestor->alphabet[toDelete->edgeLeadingTo] = NULL;
+            (ancestor->filledEdges)--;
+        }
+
+        free(toDelete->forwardedPrefix);
+        free(toDelete->forwardedNodes);
+        free(toDelete);
+    }
+}
+
+/** @brief Removes unnecessary nodes.
+ *  Removes unnecessary nodes from a tree: nodes which are not on the path
+ *  ending with a node regarded as terminal for the given prefix.
+ *
+ * @param currentForward - a node responsible for storing data about
+ *                         the final prefix, which starts the chain of nodes
+ *                         removal.
+ */
+static void removeStumpsForwardedNode(ForwardedNode * currentForward) {
+    while (currentForward && currentForward->filledEdges == 0
+           && currentForward->sumForwarded == 0) {
+        ForwardedNode * currentAncestor = currentForward->ancestor;
+
+        if (currentAncestor) {
+            removeForwardedNode(currentForward);
+        }
+
+        currentForward = currentAncestor;
+    }
+}
+
+/** @brief Removes a redirection.
+ * Removes a redirection, which includes dereference the forwarding node
+ * in the redirected node, exclusion of the redirected node from an array
+ * of the redirected nodes, clearing the flags and removal of the potentially
+ * unnecessary nodes in the final redirection tree.
+ *
+ * @param[in, out] toDeforward - a node storing information about the redirected
+ *                               prefix
+ */
+static void removeForwardedNodeFromInitialAndRemoveInitialFromForward(
+        InitialNode* toDeforward) {
+    ForwardedNode * finalForward = toDeforward->forwardingNode;
+    uint64_t index = toDeforward->indexForward;
+
+//    if (finalForward->forwardedNodes[index] != toDeforward) {
+//        printf("INDEX in final forward doesn\'t match");
+//    }
+//    else {
+//        printf("MATCHING\n");
+//    }
+
+    finalForward->forwardedNodes[index] = NULL;
+    (finalForward->sumForwarded)--;
+    toDeforward->forwardingNode = NULL;
+    toDeforward->indexForward = 0;
+
+    clearBitForward(&(toDeforward->isForwarded));
+    if (finalForward->sumForwarded == 0) {
+        clearBitForward(&(finalForward->isForwarding));
+        free(finalForward->forwardedPrefix);
+        finalForward->forwardedPrefix = NULL;
+    }
+
+    removeStumpsForwardedNode(finalForward);
+}
+
 bool phfwdAdd(PhoneForward *pfd, char const *num1, char const *num2) {
     if (!pfd) {
         return false;
@@ -594,86 +676,26 @@ bool phfwdAdd(PhoneForward *pfd, char const *num1, char const *num2) {
     }
 
     if (!addForwardedNode(currentInitial, currentForward)) {
+        removeForwardedNodeFromInitialAndRemoveInitialFromForward(currentInitial);
+
         return false;
     }
 
-    if (!(addPrefixForwardAndSetForward(currentForward, num2))
-        || !(addPrefixInitialAndSetForward(currentInitial, num1))) {
-            return false;
+    if (!(addPrefixForwardAndSetForward(currentForward, num2))) {
+        removeForwardedNodeFromInitialAndRemoveInitialFromForward(currentInitial);
+
+        return false;
     }
+
+    if (!(addPrefixInitialAndSetForward(currentInitial, num1))) {
+        removeForwardedNodeFromInitialAndRemoveInitialFromForward(currentInitial);
+        return false;
+    }
+//        || !(addPrefixInitialAndSetForward(currentInitial, num1))) {
+//            return false;
+//    }
 
     return true;
-}
-
-/** @brief Removes a node.
- *  Removes a node responsible for storing information about the final prefix
- *  and updates information about the children in the parental node.
- *
- * @param[in, out] toDelete - a node to be removed from a tree.
- */
-static void removeForwardedNode(ForwardedNode * toDelete) {
-    if (toDelete) {
-        ForwardedNode * ancestor = toDelete->ancestor;
-
-        if (ancestor) {
-            ancestor->alphabet[toDelete->edgeLeadingTo] = NULL;
-            (ancestor->filledEdges)--;
-        }
-
-        free(toDelete->forwardedPrefix);
-        free(toDelete->forwardedNodes);
-        free(toDelete);    
-    }
-}
-
-/** @brief Removes unnecessary nodes.
- *  Removes unnecessary nodes from a tree: nodes which are not on the path
- *  ending with a node regarded as terminal for the given prefix.
- *
- * @param currentForward - a node responsible for storing data about
- *                         the final prefix, which starts the chain of nodes
- *                         removal.
- */
-static void removeStumpsForwardedNode(ForwardedNode * currentForward) {
-    while (currentForward && currentForward->filledEdges == 0
-            && currentForward->sumForwarded == 0) {
-                ForwardedNode * currentAncestor = currentForward->ancestor;
-
-                if (currentAncestor) {
-                    removeForwardedNode(currentForward);
-                }
-
-                currentForward = currentAncestor;
-    }
-}
-
-/** @brief Removes a redirection.
- * Removes a redirection, which includes dereference the forwarding node
- * in the redirected node, exclusion of the redirected node from an array
- * of the redirected nodes, clearing the flags and removal of the potentially
- * unnecessary nodes in the final redirection tree.
- *
- * @param[in, out] toDeforward - a node storing information about the redirected
- *                               prefix
- */
-static void removeForwardedNodeFromInitialAndRemoveInitialFromForward(
-                                                InitialNode* toDeforward) {
-    ForwardedNode * finalForward = toDeforward->forwardingNode;
-    uint64_t index = toDeforward->indexForward;
-
-    finalForward->forwardedNodes[index] = NULL;
-    (finalForward->sumForwarded)--;
-    toDeforward->forwardingNode = NULL;
-    toDeforward->indexForward = 0;
-
-    clearBitForward(&(toDeforward->isForwarded));
-    if (finalForward->sumForwarded == 0) {
-        clearBitForward(&(finalForward->isForwarding));
-        free(finalForward->forwardedPrefix);
-        finalForward->forwardedPrefix = NULL;
-    }
-
-    removeStumpsForwardedNode(finalForward);
 }
 
 /** @brief Removes a node.
@@ -684,6 +706,15 @@ static void removeForwardedNodeFromInitialAndRemoveInitialFromForward(
  */
 static void removeInitialNode(InitialNode* init) {
     if (init) {
+//        if (isForwardSet(init->isForwarded)) {
+//            printf("I AM STILL RELATED\n");
+//        }
+//        if (init->forwardingNode == NULL) {
+//            printf("my forward is null");
+//        }
+//        else {
+//            printf("my forwards IS NOT NULL");
+//        }
         InitialNode * ancestor = init->ancestor;
         if (ancestor) {
             ancestor->alphabet[init->edgeLeadingTo] = NULL;
@@ -1147,10 +1178,26 @@ static bool recreateOriginalPhoneNumbers(ForwardedNode* finalRedirection,
     InitialNode * originalNumber;
     size_t redirectedPrefixLength = finalRedirection->depth;
     size_t resultingSuffixLength = arrayLength - redirectedPrefixLength;
-
+    printf("sum: %ld|lastind: %ld\n", finalRedirection->sumForwarded, finalRedirection->numForwardedNodes);
+    int nulls = 0;
+    for (uint64_t i = 0; i < finalRedirection->numForwardedNodes; i++) {
+        if (!finalRedirection->forwardedNodes[i]) {
+            nulls++;
+            printf("NULL ind: %ld\n", i);
+        }
+    }
+    printf("nulls: %d\n", nulls);
+//    if (finalRedirection->forwardedNodes[3] == NULL) {
+//        printf("is null\n");
+//    }
+//    else {
+//        printf("print me");
+//        printf("%ld\n", finalRedirection->forwardedNodes[3]->depth);
+//    }
     for (uint64_t i = 0; i < finalRedirection->numForwardedNodes; i++) {
         originalNumber = finalRedirection->forwardedNodes[i];
         if (originalNumber) {
+            printf("indeks: %ld\n", i);
             size_t originalPrefixLength = originalNumber->depth;
             size_t resultingLength = resultingSuffixLength
                                         + originalPrefixLength + 1;
@@ -1227,6 +1274,7 @@ PhoneNumbers * phfwdReverse(__attribute__((unused)) PhoneForward const * pf,
     int digit;
     while (depth < len && isPossibleToPass && currentForward) {
         digit = getIndex(num[depth]);
+        //printf("depth: %ld ", depth);
 
         //printf("leading: %d ", currentForward->edgeLeadingTo);
         if (isForwardSet(currentForward->isForwarding)) {
@@ -1239,7 +1287,8 @@ PhoneNumbers * phfwdReverse(__attribute__((unused)) PhoneForward const * pf,
                 return NULL;
             }
         }
-        printf("\n");
+        //printf("\n");
+        //printf("depth: %ld\n", depth);
 
         if (currentForward->alphabet[digit]) {
             currentForward = currentForward->alphabet[digit];
