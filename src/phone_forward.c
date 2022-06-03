@@ -1148,6 +1148,20 @@ static void removeDuplicateNumbersAfterQsort(PhoneNumbers* sorted) {
     }
 }
 
+/** @brief Reconstructs original phone numbers.
+ * Reconstructs original phone numbers, using prefixes which has been redirected
+ * to the prefix represented by the passed @ref ForwardedNode. Iterates over
+ * the array of the nodes representing forwarded prefixes and creates
+ * the original string through concatenation of the retrieved original prefix
+ * and the suffix left after forwarded prefix.
+ *
+ * @param[in] finalRedirection - the node representing the prefix
+ *                               after forwarding.
+ * @param arrayLength - the length of the phone number after forwarding.
+ * @param num - the phone number after forwarding
+ * @param results - the structure storing reconstructed phone numbers.
+ * @return @p False in case of memory allocation failure, @p true otherwise.
+ */
 static bool recreateOriginalPhoneNumbers(ForwardedNode* finalRedirection,
                                          size_t arrayLength,
                                          char const * num,
