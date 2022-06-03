@@ -471,6 +471,13 @@ static bool addPrefixInitialAndSetForward(InitialNode * init,
     return true;
 }
 
+/** @brief Evaluates alphabetical compatibility of the given character.
+ * Checks whether the given character belongs to the alphabet of phone numbers.
+ *
+ * @param c - the character to be validated.
+ * @return @p True if the character belongs to the phone numbers alphabet,
+ * @p false otherwise.
+ */
 static bool isPhoneDigit(char c) {
     if (isdigit(c)) {
         return true;
