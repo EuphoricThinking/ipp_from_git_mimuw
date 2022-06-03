@@ -1133,6 +1133,40 @@ static void removeDuplicateNumbersAfterQsort(PhoneNumbers* sorted) {
     }
 }
 
+static bool recreateOriginalPhoneNumbers(ForwardedNode* finalRedirection,
+                                         size_t indexArray, size_t arrayLength,
+                                         char const * num,
+                                         PhoneNumbers * results) {
+    InitialNode * originalNumber;
+    /*
+     * One added to indexArray as it doesn't represent the length
+     * as it doesn't represent the length of the prefix
+     */
+    size_t suffixLength = arrayLength - (indexArray + 1);
+    for (uint64_t i = 0; i < finalRedirection->numForwardedNodes; i++) {
+        originalNumber = finalRedirection->forwardedNodes[i];
+        if (originalNumber) {
+            /*
+             * +1 only for '\0', as originalNumber->depth represents
+             * the length of the prefix, not the index
+             */
+            size_t originalPrefixLength = originalNumber->depth;
+            char* originalPrefix = originalNumber->initialPrefix;
+
+            char* newNumber = malloc(suffixLength + originalPrefixLength + 1);
+            if (!newNumber) {
+                phnumDelete(results);
+
+                return false;
+            }
+
+            memmove(newNumber, originalPrefix, originalPrefixLength);
+            memmove(newNumber + originalPrefixLength, )
+
+
+        }
+    }
+}
 /** @brief Assigns a redirection to the given number.
  * Assigns the following sequence of numbers to the given number: if there
  * exists a number @p x such that the result of calling @p phfwdGet
