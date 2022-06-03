@@ -1049,15 +1049,71 @@ static void removeDuplicateNumbersAfterQsort(PhoneNumbers* sorted) {
     if (sorted->lastAvailableIndex > 0) {
         uint64_t left = 0;
         uint64_t right = 1;
+        uint64_t notNullElementsInTheArray = sorted->lastAvailableIndex;
 
         while (left < (sorted->lastAvailableIndex - 1)
                && right < sorted->lastAvailableIndex) {
-            while (customStrcmp(sorted->numbers[left],
-                             sorted->numbers[right]) == 0) {
-                 free(sorted->numbers[right]);
-                 sorted->numbers[right] = NULL;
+                    while (right < sorted->lastAvailableIndex
+                            && customStrcmp(sorted->numbers[left],
+                                            sorted->numbers[right]) == 0) {
+                                 free(sorted->numbers[right]);
+                                 sorted->numbers[right] = NULL;
 
-                 right++;
+                                 right++;
+                                 notNullElementsInTheArray--;
+                    }
+
+                    /*
+                     * If (right == (sorted->lastAvailableIndex - 1)),
+                     * the element at the index `left` and the element
+                     * at the last occupied index, stored in `right`,
+                     * are different as the result of the terminating condition
+                     * of the previous loop.
+                     *
+                     * If (right > (sorted->lastAvailableIndex - 1)),
+                     * the elements from the index (left + 1) to the end of
+                     * the array inclusively are NULL and there are not
+                     * any elements left to check.
+                     *
+                     * Terminating conditions of the loops enable leaving
+                     * the final termination for the outermost loop,
+                     * however the next loop for passing NULL would be executed
+                     * without need and would cost unnecessary time.
+                     */
+                    if (right >= (sorted->lastAvailableIndex - 1)) {
+                        break;
+                    }
+
+                    /*
+                     * After the increment, `right` value is at most
+                     * (sorted->lastAvailableIndex - 1), leaving at most
+                     * (sorted->lastAvailableIndex - 2)th index free for `left`,
+                     * but with not freed content
+                     * at (sorted->lastAvailableIndex - 2)th index
+                     */
+                    right++;
+
+                    while (!sorted->numbers[left + 1]) {
+                        left++;
+                    }
+
+                    /*
+                     * sorted[left] may be null
+                     */
+                    left++;
+        }
+
+        uint64_t notNUll = 1;
+        char* temp;
+        while (notNUll < sorted->lastAvailableIndex) {
+            while (!sorted->numbers[notNUll]) {
+                notNUll++;
+            }
+
+            while (!sorted->numbers[notNUll - 1]) {
+                sorted->numbers[notNUll - 1] = sorted->numbers[notNUll];
+                sorted->numbers[notNUll] = NULL;
+                notNUll--;
             }
         }
     }
