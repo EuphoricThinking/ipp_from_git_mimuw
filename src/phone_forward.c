@@ -923,7 +923,7 @@ PhoneNumbers * phfwdGet(PhoneForward const *pf, char const* num) {
 
     memmove(resultingForward, finalPrefix, finalPrefixLength);
     memmove(resultingForward + finalPrefixLength,
-            num + nonForwardedPrefixLength,finalSuffixLength);
+            num + nonForwardedPrefixLength, finalSuffixLength);
     resultingForward[finalLength - 1] = '\0';
 
     result->numbers[0] = resultingForward;
@@ -1134,15 +1134,13 @@ static void removeDuplicateNumbersAfterQsort(PhoneNumbers* sorted) {
 }
 
 static bool recreateOriginalPhoneNumbers(ForwardedNode* finalRedirection,
-                                         size_t indexArray, size_t arrayLength,
+                                         size_t arrayLength,
                                          char const * num,
                                          PhoneNumbers * results) {
     InitialNode * originalNumber;
-    /*
-     * One added to indexArray as it doesn't represent the length
-     * as it doesn't represent the length of the prefix
-     */
-    size_t suffixLength = arrayLength - (indexArray + 1);
+    size_t redirectedPrefixLength = finalRedirection->depth;
+    size_t resultingSuffixLength = arrayLength - redirectedPrefixLength;
+
     for (uint64_t i = 0; i < finalRedirection->numForwardedNodes; i++) {
         originalNumber = finalRedirection->forwardedNodes[i];
         if (originalNumber) {
@@ -1151,9 +1149,11 @@ static bool recreateOriginalPhoneNumbers(ForwardedNode* finalRedirection,
              * the length of the prefix, not the index
              */
             size_t originalPrefixLength = originalNumber->depth;
+            size_t resultingLength = resultingSuffixLength
+                                        + originalPrefixLength + 1;
             char* originalPrefix = originalNumber->initialPrefix;
 
-            char* newNumber = malloc(suffixLength + originalPrefixLength + 1);
+            char* newNumber = malloc(resultingLength);
             if (!newNumber) {
                 phnumDelete(results);
 
@@ -1161,7 +1161,9 @@ static bool recreateOriginalPhoneNumbers(ForwardedNode* finalRedirection,
             }
 
             memmove(newNumber, originalPrefix, originalPrefixLength);
-            memmove(newNumber + originalPrefixLength, )
+            memmove(newNumber + originalPrefixLength,
+                    num + redirectedPrefixLength, resultingSuffixLength);
+            newNumber[resultingLength - 1] = '\0';
 
 
         }
