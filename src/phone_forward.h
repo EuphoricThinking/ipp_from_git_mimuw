@@ -87,18 +87,20 @@ void phfwdRemove(PhoneForward *pf, char const *num);
  */
 PhoneNumbers * phfwdGet(PhoneForward const *pf, char const *num);
 
-/** @brief Assigns prefix redirected to the given number.
+/** @brief Assigns a redirection to the given number.
  * Assigns the following sequence of numbers to the given number: if there
- * exists a number @p x such that the result of calling @p phfwdGet
- * with the number @p x includes the number @p num, then the number @p x
- * belongs to the set returned by @ref phfwdReverse
- * with the number @p num. The resulting numbers are sorted lexicographically
- * and they must not repeat in the returned set. If the given string does not
- * represent a number the result is an empty sequence. Allocates a structure
- * @p PhoneNumbers, which should be freed using the function @ref phnumDelete.
+ * exists a number @p x such that its prefix can be redirected to the
+ * prefix of @p num, then the number @p x belongs to the set returned from
+ * @ref phfwdReverse with the number @p num. @ref phfwdGet may not return @p num
+ * with passed number @p x, since @ref phfwdReverse checks all possible prefixes
+ * and includes @p num, not limiting the set to the longest possible.
+ * The resulting numbers are sorted lexicographically and they must not repeat
+ * in the returned set. If the given string does not represent a number
+ * the result is an empty sequence. Allocates a structure @p PhoneNumbers,
+ * which should be freed using the function @ref phnumDelete.
  *
  * @param[in] pf - a pointer to the structure storing number redirections;
- * @param num - a pointer to the string representing a number.
+ * @param[in] num - a pointer to the string representing a number.
  * @return A pointer to the structure storing the sequence of numbers
  *         or NULL in case of memory allocation failure.
  */
