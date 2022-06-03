@@ -1052,9 +1052,12 @@ static void removeDuplicateNumbersAfterQsort(PhoneNumbers* sorted) {
 
         while (left < (sorted->lastAvailableIndex - 1)
                && right < sorted->lastAvailableIndex) {
-            if (customStrcmp(sorted->numbers[left],
+            while (customStrcmp(sorted->numbers[left],
                              sorted->numbers[right]) == 0) {
-                    
+                 free(sorted->numbers[right]);
+                 sorted->numbers[right] = NULL;
+
+                 right++;
             }
         }
     }
