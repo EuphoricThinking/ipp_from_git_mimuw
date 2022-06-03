@@ -1105,8 +1105,7 @@ static void removeDuplicateNumbersAfterQsort(PhoneNumbers* sorted) {
 
         left = 0;
         right = 1;
-        while (left < (sorted->lastAvailableIndex - 1)
-               && right < sorted->lastAvailableIndex) {
+        while (right < sorted->lastAvailableIndex) {
              while (right < sorted->lastAvailableIndex && !sorted->numbers[right]) {
                  right++;
              }
