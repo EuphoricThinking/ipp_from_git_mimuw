@@ -1167,9 +1167,9 @@ static bool recreateOriginalPhoneNumbers(ForwardedNode* finalRedirection,
                 return false;
             }
         }
-
-        return true;
     }
+
+    return true;
 }
 /** @brief Assigns a redirection to the given number.
  * Assigns the following sequence of numbers to the given number: if there
@@ -1219,7 +1219,7 @@ PhoneNumbers * phfwdReverse(__attribute__((unused)) PhoneForward const * pf,
         digit = getIndex(num[depth]);
 
         if (isForwardSet(currentForward->isForwarding)) {
-            // Add number to phone
+            // Add number to phoneNumbers
             if (!recreateOriginalPhoneNumbers(currentForward,
                                               len, num, result)) {
                 phnumDelete(result);
