@@ -1045,6 +1045,20 @@ static bool addReversedNumber(PhoneNumbers* reversed, char* pointerToBeOwned) {
     return true;
 }
 
+static void removeDuplicateNumbersAfterQsort(PhoneNumbers* sorted) {
+    if (sorted->lastAvailableIndex > 0) {
+        uint64_t left = 0;
+        uint64_t right = 1;
+
+        while (left < (sorted->lastAvailableIndex - 1)
+               && right < sorted->lastAvailableIndex) {
+            if (customStrcmp(sorted->numbers[left],
+                             sorted->numbers[right]) == 0) {
+                    
+            }
+        }
+    }
+}
 /** @brief Assigns a redirection to the given number.
  * Assigns the following sequence of numbers to the given number: if there
  * exists a number @p x such that the result of calling @p phfwdGet
