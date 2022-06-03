@@ -108,7 +108,7 @@ typedef struct InitialNode {
     uint64_t depth;
     uint8_t isForwarded;
     uint64_t indexForward;
-    int filledEdges;
+    uint8_t filledEdges;
     int edgeLeadingTo;
     int lastChecked;
     char* initialPrefix;
@@ -181,7 +181,7 @@ typedef struct ForwardedNode {
     int lastChecked;
     InitialNode** forwardedNodes;
     char* forwardedPrefix;
-    uint64_t filledEdges;
+    uint8_t filledEdges;
 } ForwardedNode; ///< Compound struct for storing data about forwarding prefixes
 
 /** @struct PhoneForward
