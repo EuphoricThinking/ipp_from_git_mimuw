@@ -1105,6 +1105,10 @@ static void removeDuplicateNumbersAfterQsort(PhoneNumbers* sorted) {
 
         left = 0;
         right = 1;
+        /*
+         * Inner terminating condition (left + 1) ensures that `left` value
+         * is always smaller than `right` value.
+         */
         while (right < sorted->lastAvailableIndex) {
              while (right < sorted->lastAvailableIndex && !sorted->numbers[right]) {
                  right++;
@@ -1128,6 +1132,7 @@ static void removeDuplicateNumbersAfterQsort(PhoneNumbers* sorted) {
         }
     }
 }
+
 /** @brief Assigns a redirection to the given number.
  * Assigns the following sequence of numbers to the given number: if there
  * exists a number @p x such that the result of calling @p phfwdGet
@@ -1158,6 +1163,26 @@ PhoneNumbers * phfwdReverse(__attribute__((unused)) PhoneForward const * pf,
 
     if (len == 0) {
         return result;
+    }
+
+    size_t depth = 0;
+    ForwardedNode * currentForward = pf->forwardedRoot;
+    bool isPossibleToPass = true;
+    int digit;
+    while (depth < len && isPossibleToPass && currentForward) {
+        digit = getIndex(num[depth]);
+
+        if (isForwardSet(currentForward->isForwarding)) {
+            // Add number to phone
+        }
+
+        if (currentForward->alphabet[digit]) {
+            currentForward = currentForward->alphabet[digit];
+            depth++;
+        }
+        else {
+            isPossibleToPass = false;
+        }
     }
 
     return NULL;
