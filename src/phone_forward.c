@@ -958,7 +958,7 @@ char const * phnumGet(PhoneNumbers const *pnum, size_t idx) {
  * @param[in] second - the second char array to compare
  * @return The result of lexicographic comparison equivalent to the result
  * of standard strcmp(...): if the first string is smaller lexicographically
- * it reutrns negative value; if the first string is greater - it returns
+ * it returns negative value; if the first string is greater - it returns
  * positive value; zero in case of equal strings.
  */
 static int customStrcmp(const char* first, const char* second) {
@@ -1055,6 +1055,10 @@ static bool addReversedNumber(PhoneNumbers* reversed, char* pointerToBeOwned) {
     return true;
 }
 
+/** @brief Removes the duplicated numbers.
+ *
+ * @param sorted
+ */
 static void removeDuplicateNumbersAfterQsort(PhoneNumbers* sorted) {
     if (sorted->lastAvailableIndex > 0) {
         uint64_t left = 0;
@@ -1205,13 +1209,15 @@ void prinPhnum(PhoneNumbers* pn) {
 }
 /** @brief Assigns a redirection to the given number.
  * Assigns the following sequence of numbers to the given number: if there
- * exists a number @p x such that the result of calling @p phfwdGet
- * with the number @p x includes the number @p num, then the number @p x
- * belongs to the set returned from @ref phfwdReverse
- * with the number @p num. The resulting numbers are sorted lexicographically
- * and they must not repeat in the returned set. If the given string does not
- * represent a number the result is an empty sequence. Allocates a structure
- * @p PhoneNumbers, which should be freed using the function @ref phnumDelete.
+ * exists a number @p x such that its prefix can be redirected to the
+ * prefix of @p num, then the number @p x belongs to the set returned from
+ * @ref phfwdReverse with the number @p num. @ref phfwdGet may not return @p num
+ * with passed number @p x, since @ref phfwdReverse checks all possible prefixes
+ * and includes @p num, not limiting the set to the longest possible.
+ * The resulting numbers are sorted lexicographically and they must not repeat
+ * in the returned set. If the given string does not represent a number
+ * the result is an empty sequence. Allocates a structure @p PhoneNumbers,
+ * which should be freed using the function @ref phnumDelete.
  *
  * @param[in] pf - a pointer to the structure storing number redirections;
  * @param num - a pointer to the string representing a number.
