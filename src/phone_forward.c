@@ -395,6 +395,14 @@ static bool addForwardedNode(InitialNode* toBeForwarded, ForwardedNode*
         *slots = newSlots;
     }
 
+    if (isForwardSet(toBeForwarded->isForwarded)) {
+        ForwardedNode * previousForward = toBeForwarded->forwardingNode;
+        uint64_t previousIndex = toBeForwarded->indexForward;
+
+        previousForward->forwardedNodes[previousIndex] = NULL;
+        (previousForward->sumForwarded)--;
+    }
+
     finalForward->forwardedNodes[(*numNodes)] = toBeForwarded;
     toBeForwarded->indexForward = (*numNodes)++;
 //    if (finalForward->forwardedNodes[toBeForwarded->indexForward] != toBeForwarded) {
@@ -1178,15 +1186,15 @@ static bool recreateOriginalPhoneNumbers(ForwardedNode* finalRedirection,
     InitialNode * originalNumber;
     size_t redirectedPrefixLength = finalRedirection->depth;
     size_t resultingSuffixLength = arrayLength - redirectedPrefixLength;
-    printf("sum: %ld|lastind: %ld\n", finalRedirection->sumForwarded, finalRedirection->numForwardedNodes);
-    int nulls = 0;
-    for (uint64_t i = 0; i < finalRedirection->numForwardedNodes; i++) {
-        if (!finalRedirection->forwardedNodes[i]) {
-            nulls++;
-            printf("NULL ind: %ld\n", i);
-        }
-    }
-    printf("nulls: %d\n", nulls);
+//    printf("sum: %ld|lastind: %ld\n", finalRedirection->sumForwarded, finalRedirection->numForwardedNodes);
+//    int nulls = 0;
+//    for (uint64_t i = 0; i < finalRedirection->numForwardedNodes; i++) {
+//        if (!finalRedirection->forwardedNodes[i]) {
+//            nulls++;
+//            printf("NULL ind: %ld\n", i);
+//        }
+//    }
+//    printf("nulls: %d\n", nulls);
 //    if (finalRedirection->forwardedNodes[3] == NULL) {
 //        printf("is null\n");
 //    }
@@ -1197,7 +1205,7 @@ static bool recreateOriginalPhoneNumbers(ForwardedNode* finalRedirection,
     for (uint64_t i = 0; i < finalRedirection->numForwardedNodes; i++) {
         originalNumber = finalRedirection->forwardedNodes[i];
         if (originalNumber) {
-            printf("indeks: %ld\n", i);
+            // printf("indeks: %ld\n", i);
             size_t originalPrefixLength = originalNumber->depth;
             size_t resultingLength = resultingSuffixLength
                                         + originalPrefixLength + 1;
