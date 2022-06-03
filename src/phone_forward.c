@@ -1165,8 +1165,12 @@ static bool recreateOriginalPhoneNumbers(ForwardedNode* finalRedirection,
                     num + redirectedPrefixLength, resultingSuffixLength);
             newNumber[resultingLength - 1] = '\0';
 
-
+            if (!addReversedNumber(results, newNumber)) {
+                return false;
+            }
         }
+
+        return true;
     }
 }
 /** @brief Assigns a redirection to the given number.
