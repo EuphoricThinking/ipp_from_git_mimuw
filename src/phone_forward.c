@@ -1233,8 +1233,8 @@ static bool recreateOriginalPhoneNumbers(ForwardedNode* finalRedirection,
  * @return A pointer to the structure storing the sequence of numbers
  *         or NULL in case of memory allocation failure.
  */
-PhoneNumbers * phfwdReverse(__attribute__((unused)) PhoneForward const * pf,
-                            __attribute__((unused)) char const *num) {
+PhoneNumbers * phfwdReverse(PhoneForward const * pf,
+                            char const *num) {
     if (!pf) {
         return NULL;
     }
