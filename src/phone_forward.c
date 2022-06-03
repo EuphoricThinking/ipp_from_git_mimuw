@@ -520,7 +520,8 @@ static size_t checkLength(const char * number) {
  * Converts a char to the integer value of the number it represents graphically.
  *
  * @param[in] c - a char to convert
- * @return The integer value of the number the passed char represents graphically.
+ * @return The integer value of the number the passed char represents
+ * graphically.
  */
 static int getIndex(char c) {
     if (c >= DIGIT_ASCII_START && c <= DIGIT_ASCII_END) {
@@ -1050,7 +1051,8 @@ static bool addReversedNumber(PhoneNumbers* reversed, char* pointerToBeOwned) {
 
     if (*slots <= * lastIndex) {
         uint64_t newSlots = (*slots)*2 + 1;
-        char** newNumbers = realloc(reversed->numbers, newSlots * sizeof(char*));
+        char** newNumbers = realloc(reversed->numbers,
+                                    newSlots * sizeof(char*));
 
         if (!newNumbers) {
             return false;
@@ -1139,8 +1141,9 @@ static void removeDuplicateNumbersAfterQsort(PhoneNumbers* sorted) {
          * Swapping null values
          */
         while (right < sorted->lastAvailableIndex) {
-             while (right < sorted->lastAvailableIndex && !sorted->numbers[right]) {
-                 right++;
+             while (right < sorted->lastAvailableIndex
+                    && !sorted->numbers[right]) {
+                        right++;
              }
 
              if (right == sorted->lastAvailableIndex) {
@@ -1160,7 +1163,7 @@ static void removeDuplicateNumbersAfterQsort(PhoneNumbers* sorted) {
              right++;
         }
 
-        sorted->lastAvailableIndex = notNullElementsInTheArray; // TODO check if it's not dangerous
+        sorted->lastAvailableIndex = notNullElementsInTheArray;
     }
 }
 
