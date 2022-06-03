@@ -18,6 +18,8 @@
 #include <stdbool.h>
 #include <ctype.h>
 
+#include <stdio.h>
+
 /**
  * The size of the alphabet of the telephone numbers, counting
  * ten characters from 0 to 11 inclusively.
@@ -1028,7 +1030,7 @@ static bool addReversedNumber(PhoneNumbers* reversed, char* pointerToBeOwned) {
     uint64_t * slots = &(reversed->slots);
     uint64_t * lastIndex = &(reversed->lastAvailableIndex);
 
-    if (*slots <= lastIndex) {
+    if (*slots <= * lastIndex) {
         uint64_t newSlots = (*slots)*2 + 1;
         char** newNumbers = realloc(reversed->numbers, newSlots * sizeof(char*));
 
@@ -1172,6 +1174,13 @@ static bool recreateOriginalPhoneNumbers(ForwardedNode* finalRedirection,
 
     return true;
 }
+
+void prinPhnum(PhoneNumbers* pn) {
+    printf("last aval: %ld\n", pn->lastAvailableIndex);
+    for (uint64_t i = 0; i < pn->lastAvailableIndex; i++) {
+        printf("%s\n", pn->numbers[i]);
+    }
+}
 /** @brief Assigns a redirection to the given number.
  * Assigns the following sequence of numbers to the given number: if there
  * exists a number @p x such that the result of calling @p phfwdGet
@@ -1219,8 +1228,10 @@ PhoneNumbers * phfwdReverse(__attribute__((unused)) PhoneForward const * pf,
     while (depth < len && isPossibleToPass && currentForward) {
         digit = getIndex(num[depth]);
 
+        //printf("leading: %d ", currentForward->edgeLeadingTo);
         if (isForwardSet(currentForward->isForwarding)) {
             // Add number to phoneNumbers
+            //printf("F");
             if (!recreateOriginalPhoneNumbers(currentForward,
                                               len, num, result)) {
                 phnumDelete(result);
@@ -1228,6 +1239,7 @@ PhoneNumbers * phfwdReverse(__attribute__((unused)) PhoneForward const * pf,
                 return NULL;
             }
         }
+        printf("\n");
 
         if (currentForward->alphabet[digit]) {
             currentForward = currentForward->alphabet[digit];
@@ -1237,7 +1249,19 @@ PhoneNumbers * phfwdReverse(__attribute__((unused)) PhoneForward const * pf,
             isPossibleToPass = false;
         }
     }
+    //printf("LAST leading: %d\n", currentForward->edgeLeadingTo);
 
+    //Check the last one
+    if (currentForward && isForwardSet(currentForward->isForwarding)) {
+        if (!recreateOriginalPhoneNumbers(currentForward,
+                                          len, num, result)) {
+            phnumDelete(result);
+
+            return NULL;
+        }
+    }
+
+    //prinPhnum(result);
     sortCharArray(result->numbers, result->lastAvailableIndex);
     removeDuplicateNumbersAfterQsort(result);
 
