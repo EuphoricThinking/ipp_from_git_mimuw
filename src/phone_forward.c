@@ -1014,7 +1014,7 @@ static int comparatorStrings(const void *p1, const void *p2) {
  * @param numMembersToCompare - The number of members in the array
  * to be compared.
  */
-void sortCharArray(char* array, size_t numMembersToCompare) {
+void sortCharArray(char** array, size_t numMembersToCompare) {
     qsort(array, numMembersToCompare, sizeof(char *), comparatorStrings);
 }
 
@@ -1108,6 +1108,8 @@ static void removeDuplicateNumbersAfterQsort(PhoneNumbers* sorted) {
         /*
          * Inner terminating condition (left + 1) ensures that `left` value
          * is always smaller than `right` value.
+         *
+         * Swapping null values
          */
         while (right < sorted->lastAvailableIndex) {
              while (right < sorted->lastAvailableIndex && !sorted->numbers[right]) {
@@ -1130,6 +1132,8 @@ static void removeDuplicateNumbersAfterQsort(PhoneNumbers* sorted) {
              left++;
              right++;
         }
+
+        sorted->lastAvailableIndex = notNullElementsInTheArray; // TODO check if it's not dangerous
     }
 }
 
@@ -1144,10 +1148,6 @@ static bool recreateOriginalPhoneNumbers(ForwardedNode* finalRedirection,
     for (uint64_t i = 0; i < finalRedirection->numForwardedNodes; i++) {
         originalNumber = finalRedirection->forwardedNodes[i];
         if (originalNumber) {
-            /*
-             * +1 only for '\0', as originalNumber->depth represents
-             * the length of the prefix, not the index
-             */
             size_t originalPrefixLength = originalNumber->depth;
             size_t resultingLength = resultingSuffixLength
                                         + originalPrefixLength + 1;
@@ -1155,8 +1155,6 @@ static bool recreateOriginalPhoneNumbers(ForwardedNode* finalRedirection,
 
             char* newNumber = malloc(resultingLength);
             if (!newNumber) {
-                phnumDelete(results);
-
                 return false;
             }
 
@@ -1205,6 +1203,14 @@ PhoneNumbers * phfwdReverse(__attribute__((unused)) PhoneForward const * pf,
         return result;
     }
 
+    result->numbers[0] = strdup(num);
+
+    if (!result->numbers[0]) {
+        phnumDelete(result);
+
+        return NULL;
+    }
+
     size_t depth = 0;
     ForwardedNode * currentForward = pf->forwardedRoot;
     bool isPossibleToPass = true;
@@ -1214,6 +1220,12 @@ PhoneNumbers * phfwdReverse(__attribute__((unused)) PhoneForward const * pf,
 
         if (isForwardSet(currentForward->isForwarding)) {
             // Add number to phone
+            if (!recreateOriginalPhoneNumbers(currentForward,
+                                              len, num, result)) {
+                phnumDelete(result);
+
+                return NULL;
+            }
         }
 
         if (currentForward->alphabet[digit]) {
@@ -1225,5 +1237,8 @@ PhoneNumbers * phfwdReverse(__attribute__((unused)) PhoneForward const * pf,
         }
     }
 
-    return NULL;
+    sortCharArray(result->numbers, result->lastAvailableIndex);
+    removeDuplicateNumbersAfterQsort(result);
+
+    return result;
 }
