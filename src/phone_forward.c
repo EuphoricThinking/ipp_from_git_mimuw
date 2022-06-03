@@ -1098,7 +1098,8 @@ static void removeDuplicateNumbersAfterQsort(PhoneNumbers* sorted) {
                     }
 
                     /*
-                     * sorted[left] may be null
+                     * sorted[left] may be null; left is smaller tha right
+                     * after the increment.
                      */
                     left++;
         }
