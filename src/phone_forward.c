@@ -1028,11 +1028,16 @@ void sortCharArray(char** array, size_t numMembersToCompare) {
     qsort(array, numMembersToCompare, sizeof(char *), comparatorStrings);
 }
 
-/** @brief Adding new number to PhoneNumbers
+/** @brief Adding new number to PhoneNumbers.
+ * Adds the number to the set of numbers reconstructed in
+ * @ref recreateOriginalPhoneNumbers. Reallocates memory of the result structure
+ * if necessary. The pointer to the recreated phone number is assigned to
+ * the array and owned by the structure to avoid double frees and memory leaks;
+ * the pointer needs to be freed by @ref phnumDelete.
  *
- * @param reversed
- * @param pointerToBeOwned
- * @return
+ * @param reversed - the structure storing reconstructing numbers.
+ * @param pointerToBeOwned - the pointer to the reconstructed phone number.
+ * @return @p False in case of memory allocation failure, @p true otherwise.
  */
 static bool addReversedNumber(PhoneNumbers* reversed, char* pointerToBeOwned) {
     uint64_t * slots = &(reversed->slots);
@@ -1055,9 +1060,11 @@ static bool addReversedNumber(PhoneNumbers* reversed, char* pointerToBeOwned) {
     return true;
 }
 
-/** @brief Removes the duplicated numbers.
+/** @brief Removes duplicated numbers.
+ * Removes duplicates from the array of the sorted phone numbers,
+ * recreated in @ref recreateOriginalPhoneNumbers.
  *
- * @param sorted
+ * @param sorted - the sorted char** array of the reconstructed numbers.
  */
 static void removeDuplicateNumbersAfterQsort(PhoneNumbers* sorted) {
     if (sorted->lastAvailableIndex > 0) {
