@@ -1030,7 +1030,7 @@ static int comparatorStrings(const void *p1, const void *p2) {
  * @param[in] numMembersToCompare - The number of members in the array
  * to be compared.
  */
-void sortCharArray(char** array, size_t numMembersToCompare) {
+static void sortCharArray(char** array, size_t numMembersToCompare) {
     qsort(array, numMembersToCompare, sizeof(char *), comparatorStrings);
 }
 
