@@ -614,6 +614,16 @@ int main(void) {
   assert(phfwdAdd(pf, "#", "51") == true);
 
   pnum = phfwdGetReverse(pf, "51");
+  printf("H %s\n", phnumGet(pnum, 0));
+  printf("H %s\n", phnumGet(pnum, 1));
+  printf("H %s\n", phnumGet(pnum, 2));
+  printf("H %s\n", phnumGet(pnum, 3));
+  printf("H %s\n", phnumGet(pnum, 4));
+  printf("H %s\n", phnumGet(pnum, 5));
+  printf("H %s\n", phnumGet(pnum, 6));
+  printf("H %s\n", phnumGet(pnum, 7));
+  printf("H %s\n", phnumGet(pnum, 8));
+  
   assert(strcmp(phnumGet(pnum, 0), "0") == 0);
   assert(strcmp(phnumGet(pnum, 1), "1") == 0);
   assert(strcmp(phnumGet(pnum, 2), "2") == 0);
