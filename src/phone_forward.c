@@ -110,7 +110,7 @@ typedef struct InitialNode {
     uint64_t indexForward;
     uint8_t filledEdges;
     int edgeLeadingTo;
-    int lastChecked;
+    uint32_t lastChecked;
     char* initialPrefix;
 } InitialNode;  ///< Compound struct for storing data about redirected prefixes
 
@@ -178,7 +178,7 @@ typedef struct ForwardedNode {
     uint64_t depth;
     uint64_t numSlotsForNodes;
     int edgeLeadingTo;
-    int lastChecked;
+    uint32_t lastChecked;
     InitialNode** forwardedNodes;
     char* forwardedPrefix;
     uint8_t filledEdges;
@@ -771,7 +771,7 @@ void phfwdRemove(PhoneForward * pf, char const * num) {
                 removeInitialNode(currentInitial);
                 currentInitial = currentAncestor;
             } else {
-                int *index = &(currentInitial->lastChecked);
+                uint32_t *index = &(currentInitial->lastChecked);
 
                 while (!currentInitial->alphabet[*index]) {
                     (*index)++;
@@ -798,7 +798,7 @@ void phfwdDelete(PhoneForward * pf) {
                 currentInitial = currentInitAncestor;
             }
             else {
-                int * index = &(currentInitial->lastChecked);
+                uint32_t * index = &(currentInitial->lastChecked);
 
                 while (!currentInitial->alphabet[*index]) {
                     (*index)++;
@@ -818,7 +818,7 @@ void phfwdDelete(PhoneForward * pf) {
                 currentForward = currentForwardAncestor;
             }
             else {
-                int *index = &(currentForward->lastChecked);
+                uint32_t *index = &(currentForward->lastChecked);
 
                 while(!currentForward->alphabet[*index]) {
                     (*index)++;
