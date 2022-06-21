@@ -1036,6 +1036,15 @@ static void sortCharArray(char** array, size_t numMembersToCompare) {
     qsort(array, numMembersToCompare, sizeof(char *), comparatorStrings);
 }
 
+/** @brief Checks equality of phfwdGet input.
+ * Checks whether the given @p reverseInput could have resulted from
+ * @ref phfwdGet called with @preconstructionResult.
+ *
+ * @param reconstructionResult
+ * @param reverseInput
+ * @param pf
+ * @return
+ */
 static bool isResultingFromGet(const void * reconstructionResult,
                              const void * reverseInput,
                              PhoneForward const * pf){
