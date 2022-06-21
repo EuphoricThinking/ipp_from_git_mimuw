@@ -1312,7 +1312,7 @@ PhoneNumbers * reverseHelper(PhoneForward const * pf,
 
     return result;
 }
-/** @brief Assigns a redirection to the given number.
+/** @brief Assigns possible redirections to the given number.
  * Assigns the following sequence of numbers to the given number: if there
  * exists a number @p x such that its prefix can be redirected to the
  * prefix of @p num, then the number @p x belongs to the set returned from
@@ -1333,6 +1333,19 @@ PhoneNumbers * phfwdReverse(PhoneForward const *pf, char const *num) {
     return reverseHelper(pf, num, false);
 }
 
+/** @brief Reconstructs original numbers from given redirection.
+ * Assings the following sequence of numbers to the given number: if there
+ * exists a number @p x such that @ref phfwdGet function called with given @p x
+ * returns @p num, then the number @p x belongs to the set returned from
+ * @ref phfwdGetReverse with the number @p num. If the given string does not
+ * represent a number the result is an empty sequence. Allocates a structure
+ * @p PhoneNumbers, which should be freed using the function @ref phnumDelete.
+ *
+ * @param[in] pf - a pointer to the structure storing number redirections;
+ * @param[in] num - a pointer to the string representing a number.
+ * @return A pointer to the structure storing the sequence of numbers
+ *         or NULL in case of memory allocation failure.
+ */
 PhoneNumbers * phfwdGetReverse(PhoneForward const *pf, char const *num) {
     return reverseHelper(pf, num, true);
 }
