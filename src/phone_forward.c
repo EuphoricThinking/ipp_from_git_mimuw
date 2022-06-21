@@ -18,8 +18,6 @@
 #include <stdbool.h>
 #include <ctype.h>
 
-#include <stdio.h>
-
 /**
  * The size of the alphabet of the telephone numbers, counting
  * ten characters from 0 to 11 inclusively.
@@ -793,7 +791,7 @@ void phfwdDelete(PhoneForward * pf) {
         InitialNode * currentInitial = pf->initialRoot;
         InitialNode * currentInitAncestor;
 
-        //NULL is an ancestor
+        // NULL is an ancestor
         while (currentInitial) {
             if (currentInitial->filledEdges == 0) {
                 currentInitAncestor = currentInitial->ancestor;
@@ -1059,16 +1057,12 @@ static bool isResultingFromGet(const char * reconstructionResult,
     char const * resultGetNumber = phnumGet(getResult, 0);
     bool isFromGet = true;
 
-    //printf("resultGet %s\n", resultGetNumber);
-    //if (intendedOutput == NULL) printf("NULL\n");
-    //printf("intenteded %s\n", intendedOutput);
     if (!resultGetNumber || customStrcmp(resultGetNumber,
                                         intendedOutput) != 0) {
 
         isFromGet = false;
     }
 
-    //printf("after\n");
     phnumDelete(getResult);
 
     return isFromGet;
@@ -1316,19 +1310,8 @@ PhoneNumbers * reverseHelper(PhoneForward const * pf,
         }
     }
     else {
-//        if (isResultingFromGet(num, num, pf)) {
-//            result->numbers[0] = strdup(num);
-//        }
-//        else {
             result->lastAvailableIndex = 0;
-//        }
     }
-
-//    if (!result->numbers[0]) {
-//        phnumDelete(result);
-//
-//        return NULL;
-//    }
 
     size_t depth = 0;
     ForwardedNode *currentForward = pf->forwardedRoot;
@@ -1370,40 +1353,11 @@ PhoneNumbers * reverseHelper(PhoneForward const * pf,
 
     return result;
 }
-/** @brief Assigns possible redirections to the given number.
- * Assigns the following sequence of numbers to the given number: if there
- * exists a number @p x such that its prefix can be redirected to the
- * prefix of @p num, then the number @p x belongs to the set returned from
- * @ref phfwdReverse with the number @p num. @ref phfwdGet may not return @p num
- * with passed number @p x, since @ref phfwdReverse checks all possible prefixes
- * and includes @p num, not limiting the set to the longest possible.
- * The resulting numbers are sorted lexicographically and they must not repeat
- * in the returned set. If the given string does not represent a number
- * the result is an empty sequence. Allocates a structure @p PhoneNumbers,
- * which should be freed using the function @ref phnumDelete.
- *
- * @param[in] pf - a pointer to the structure storing number redirections;
- * @param[in] num - a pointer to the string representing a number.
- * @return A pointer to the structure storing the sequence of numbers
- *         or NULL in case of memory allocation failure.
- */
+
 PhoneNumbers * phfwdReverse(PhoneForward const *pf, char const *num) {
     return reverseHelper(pf, num, false);
 }
 
-/** @brief Reconstructs original numbers from given redirection.
- * Assings the following sequence of numbers to the given number: if there
- * exists a number @p x such that @ref phfwdGet function called with given @p x
- * returns @p num, then the number @p x belongs to the set returned from
- * @ref phfwdGetReverse with the number @p num. If the given string does not
- * represent a number the result is an empty sequence. Allocates a structure
- * @p PhoneNumbers, which should be freed using the function @ref phnumDelete.
- *
- * @param[in] pf - a pointer to the structure storing number redirections;
- * @param[in] num - a pointer to the string representing a number.
- * @return A pointer to the structure storing the sequence of numbers
- *         or NULL in case of memory allocation failure.
- */
 PhoneNumbers * phfwdGetReverse(PhoneForward const *pf, char const *num) {
     return reverseHelper(pf, num, true);
 }
