@@ -1036,6 +1036,21 @@ static void sortCharArray(char** array, size_t numMembersToCompare) {
     qsort(array, numMembersToCompare, sizeof(char *), comparatorStrings);
 }
 
+static bool ifResultsFromGet(const void * reconstructionResult,
+                             const void * reverseInput,
+                             PhoneForward const * pf){
+    PhoneNumbers * getResult = phfwdGet(pf, reconstructionResult);
+
+    if (!getResult || customStrcmp(* (char * const *) reconstructionResult,
+                                   * (char * const *) reverseInput) != 0) {
+        return false;
+    }
+    else {
+        return true;
+    }
+}
+
+//TODO uzupełnij
 /** @brief Adding new number to PhoneNumbers.
  * Adds the number to the set of numbers reconstructed in
  * @ref recreateOriginalPhoneNumbers. Reallocates memory of the result structure
@@ -1235,7 +1250,7 @@ static bool recreateOriginalPhoneNumbers(ForwardedNode* finalRedirection,
  * @return A pointer to the structure storing the sequence of numbers
  *         or NULL in case of memory allocation failure.
  */
-PhoneNumbers * phfwdReverse(PhoneForward const * pf,
+PhoneNumbers * reverseHelper(PhoneForward const * pf,
                             char const *num) {
     if (!pf) {
         return NULL;
