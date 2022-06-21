@@ -94,7 +94,7 @@ struct ForwardedNode;
  * @var InitialNode::edgeLeadingTo
  *      The label of the edge leading to the current node, equivalent to
  *      the index value in \link InitialNode::alphabet alphabet array \endlink
- *      of the parent.
+ *      of the parent. // For root is -1
  * @var InitialNode::lastChecked
  *      The index of the last checked element in \link InitialNode::alphabet
  *      alphabet array \endlink, used in the iterative tree traversal.
@@ -111,8 +111,8 @@ typedef struct InitialNode {
     uint8_t isForwarded;
     uint64_t indexForward;
     uint8_t filledEdges;
-    int edgeLeadingTo;
-    int lastChecked;
+    int edgeLeadingTo; // For root is -1
+    uint32_t lastChecked;
     char* initialPrefix;
 } InitialNode;  ///< Compound struct for storing data about redirected prefixes
 
@@ -150,7 +150,7 @@ typedef struct InitialNode {
  *  @var ForwardedNode::edgeLeadingTo
  *          The label of the edge leading to the current node, equivalent to
  *          the index value in \link ForwardedNode::alphabet alphabet array
- *          \endlink of the parent.
+ *          \endlink of the parent. For root is -1.
  *  @var ForwardedNode::lastChecked
  *          The index of the last checked element in \link
  *          ForwardedNode::alphabet alphabet array \endlink, used in the
@@ -179,8 +179,8 @@ typedef struct ForwardedNode {
     uint64_t sumForwarded;
     uint64_t depth;
     uint64_t numSlotsForNodes;
-    int edgeLeadingTo;
-    int lastChecked;
+    int edgeLeadingTo; // For root is -1
+    uint32_t lastChecked;
     InitialNode** forwardedNodes;
     char* forwardedPrefix;
     uint8_t filledEdges;
@@ -525,9 +525,10 @@ static size_t checkLength(const char * number) {
  *
  * @param[in] c - a char to convert
  * @return The integer value of the number the passed char represents
- * graphically.
+ * graphically. Input should have been validated therefore the result should
+ * not overflow.
  */
-static int getIndex(char c) {
+static uint32_t getIndex(char c) {
     if (c >= DIGIT_ASCII_START && c <= DIGIT_ASCII_END) {
         return c - '0';
     }
@@ -562,7 +563,7 @@ bool phfwdAdd(PhoneForward *pfd, char const *num1, char const *num2) {
 
     uint64_t depth = 0;
     InitialNode * currentInitial = pfd->initialRoot;
-    int digit;
+    uint32_t digit;
 
     // Extending the path for redirected prefix
     while (depth < len1) {
@@ -743,7 +744,7 @@ void phfwdRemove(PhoneForward * pf, char const * num) {
         uint64_t depth = 0;
         bool possibleToPass = true;
         InitialNode *currentInitialCore = pf->initialRoot;
-        int digit;
+        uint32_t digit;
         while (depth < len && possibleToPass) {
             digit = getIndex(num[depth]);
 
@@ -773,7 +774,7 @@ void phfwdRemove(PhoneForward * pf, char const * num) {
                 removeInitialNode(currentInitial);
                 currentInitial = currentAncestor;
             } else {
-                int *index = &(currentInitial->lastChecked);
+                uint32_t *index = &(currentInitial->lastChecked);
 
                 while (!currentInitial->alphabet[*index]) {
                     (*index)++;
@@ -800,7 +801,7 @@ void phfwdDelete(PhoneForward * pf) {
                 currentInitial = currentInitAncestor;
             }
             else {
-                int * index = &(currentInitial->lastChecked);
+                uint32_t * index = &(currentInitial->lastChecked);
 
                 while (!currentInitial->alphabet[*index]) {
                     (*index)++;
@@ -820,7 +821,7 @@ void phfwdDelete(PhoneForward * pf) {
                 currentForward = currentForwardAncestor;
             }
             else {
-                int *index = &(currentForward->lastChecked);
+                uint32_t *index = &(currentForward->lastChecked);
 
                 while(!currentForward->alphabet[*index]) {
                     (*index)++;
@@ -892,7 +893,7 @@ PhoneNumbers * phfwdGet(PhoneForward const *pf, char const* num) {
     InitialNode * currentInitial = pf->initialRoot;
     bool isPossibleToPass = true;
     size_t depth = 0;
-    int digit;
+    uint32_t digit;
 
     while (depth < len && isPossibleToPass && currentInitial) {
         digit = getIndex(num[depth]);
@@ -972,7 +973,7 @@ char const * phnumGet(PhoneNumbers const *pnum, size_t idx) {
  * positive value; zero in case of equal strings.
  */
 static int customStrcmp(const char* first, const char* second) {
-    int index = 0;
+    size_t index = 0;
     int result = 0;
     while (first[index] != '\0' && second[index] != '\0' && result == 0) {
         result = getIndex(first[index]) - getIndex(second[index]);
@@ -1332,7 +1333,7 @@ PhoneNumbers * reverseHelper(PhoneForward const * pf,
     size_t depth = 0;
     ForwardedNode *currentForward = pf->forwardedRoot;
     bool isPossibleToPass = true;
-    int digit;
+    uint32_t digit;
     while (depth < len && isPossibleToPass && currentForward) {
         digit = getIndex(num[depth]);
 
