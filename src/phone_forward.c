@@ -523,9 +523,10 @@ static size_t checkLength(const char * number) {
  *
  * @param[in] c - a char to convert
  * @return The integer value of the number the passed char represents
- * graphically.
+ * graphically. The result of subtraction should not overflow since the input
+ * should have been validated.
  */
-static int getIndex(char c) {
+static uint32_t getIndex(char c) {
     if (c >= DIGIT_ASCII_START && c <= DIGIT_ASCII_END) {
         return c - '0';
     }
@@ -560,7 +561,7 @@ bool phfwdAdd(PhoneForward *pfd, char const *num1, char const *num2) {
 
     uint64_t depth = 0;
     InitialNode * currentInitial = pfd->initialRoot;
-    int digit;
+    uint32_t digit;
 
     // Extending the path for redirected prefix
     while (depth < len1) {
@@ -741,7 +742,7 @@ void phfwdRemove(PhoneForward * pf, char const * num) {
         uint64_t depth = 0;
         bool possibleToPass = true;
         InitialNode *currentInitialCore = pf->initialRoot;
-        int digit;
+        uint32_t digit;
         while (depth < len && possibleToPass) {
             digit = getIndex(num[depth]);
 
@@ -890,7 +891,7 @@ PhoneNumbers * phfwdGet(PhoneForward const *pf, char const* num) {
     InitialNode * currentInitial = pf->initialRoot;
     bool isPossibleToPass = true;
     size_t depth = 0;
-    int digit;
+    uint32_t digit;
 
     while (depth < len && isPossibleToPass && currentInitial) {
         digit = getIndex(num[depth]);
@@ -970,7 +971,7 @@ char const * phnumGet(PhoneNumbers const *pnum, size_t idx) {
  * positive value; zero in case of equal strings.
  */
 static int customStrcmp(const char* first, const char* second) {
-    int index = 0;
+    size_t index = 0;
     int result = 0;
     while (first[index] != '\0' && second[index] != '\0' && result == 0) {
         result = getIndex(first[index]) - getIndex(second[index]);
@@ -1300,7 +1301,7 @@ PhoneNumbers * reverseHelper(PhoneForward const * pf,
     size_t depth = 0;
     ForwardedNode *currentForward = pf->forwardedRoot;
     bool isPossibleToPass = true;
-    int digit;
+    uint32_t digit;
     while (depth < len && isPossibleToPass && currentForward) {
         digit = getIndex(num[depth]);
 
