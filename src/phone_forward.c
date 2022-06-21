@@ -18,6 +18,8 @@
 #include <stdbool.h>
 #include <ctype.h>
 
+#include <stdio.h>
+
 /**
  * The size of the alphabet of the telephone numbers, counting
  * ten characters from 0 to 11 inclusively.
@@ -1049,18 +1051,22 @@ static void sortCharArray(char** array, size_t numMembersToCompare) {
  * not being equal with @ref phfwdGet called with @p reconstructionResult,
  * @p true otherwise.
  */
-static bool isResultingFromGet(const void * reconstructionResult,
-                             const void * intendedOutput,
+static bool isResultingFromGet(const char * reconstructionResult,
+                             const char * intendedOutput,
                              PhoneForward const * pf){
     PhoneNumbers * getResult = phfwdGet(pf, reconstructionResult);
     char const * resultGetNumber = phnumGet(getResult, 0);
     bool isFromGet = true;
 
-    if (!resultGetNumber || customStrcmp(* (char * const *) resultGetNumber,
-                                     * (char * const *) intendedOutput) != 0) {
+    //printf("resultGet %s\n", resultGetNumber);
+    //if (intendedOutput == NULL) printf("NULL\n");
+    //printf("intenteded %s\n", intendedOutput);
+    if (!resultGetNumber || customStrcmp(resultGetNumber,
+                                        intendedOutput) != 0) {
         isFromGet = false;
     }
 
+    //printf("after\n");
     phnumDelete(getResult);
 
     return isFromGet;

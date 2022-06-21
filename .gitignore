@@ -21,3 +21,5 @@ release
 release/
 debug
 debug/
+test.sh
+

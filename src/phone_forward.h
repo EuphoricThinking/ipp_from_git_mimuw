@@ -125,4 +125,6 @@ void phnumDelete(PhoneNumbers *pnum);
  */
 char const * phnumGet(PhoneNumbers const *pnum, size_t idx);
 
+PhoneNumbers * phfwdGetReverse(PhoneForward const *pf, char const *num);
+
 #endif /* __PHONE_FORWARD_H__ */
