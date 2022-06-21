@@ -1063,6 +1063,7 @@ static bool isResultingFromGet(const char * reconstructionResult,
     //printf("intenteded %s\n", intendedOutput);
     if (!resultGetNumber || customStrcmp(resultGetNumber,
                                         intendedOutput) != 0) {
+
         isFromGet = false;
     }
 
