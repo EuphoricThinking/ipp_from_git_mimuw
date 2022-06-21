@@ -1038,22 +1038,26 @@ static void sortCharArray(char** array, size_t numMembersToCompare) {
 
 /** @brief Checks equality of phfwdGet input.
  * Checks whether the given @p reverseInput could have resulted from
- * @ref phfwdGet called with @preconstructionResult.
+ * @ref phfwdGet called with @p reconstructionResult.
  *
- * @param reconstructionResult
- * @param reverseInput
- * @param pf
- * @return
+ * @param[in] reconstructionResult - a reconstructed original phone number.
+ * @param[in] intendedOutput - an intended output from @ref phfwdGet called with
+ *                             reconstructionResult.
+ * @param[in] pf - a pointer to the structure storing number redirections.
+ *
+ * @return @p False in case of memory allocation failure or @p intendedOutput
+ * not being equal with @ref phfwdGet called with @p reconstructionResult,
+ * @p true otherwise.
  */
 static bool isResultingFromGet(const void * reconstructionResult,
-                             const void * reverseInput,
+                             const void * intendedOutput,
                              PhoneForward const * pf){
     PhoneNumbers * getResult = phfwdGet(pf, reconstructionResult);
     char const * resultGetNumber = phnumGet(getResult, 0);
     bool isFromGet = true;
 
     if (!resultGetNumber || customStrcmp(* (char * const *) resultGetNumber,
-                                     * (char * const *) reverseInput) != 0) {
+                                     * (char * const *) intendedOutput) != 0) {
         isFromGet = false;
     }
 
