@@ -1247,6 +1247,18 @@ static bool recreateOriginalPhoneNumbers(ForwardedNode* finalRedirection,
     return true;
 }
 
+/** @brief Creates phfwdGetReverse or phwfdReverse output.
+ * A helper function which creates the full result of @ref phtwdGetReverse
+ * or @ref phfwdReverse, according to the passed parameter, indicating which
+ * function has called reverseHelper.
+ *
+ * @param[in] pf - a pointer to the structure storing number redirections;
+ * @param[in] num - a pointer to the string representing a number.
+ * @param[in] isGetReverse - an indicator whether phfwdGetReverse
+ *                           or phfwdReverse calls reverseHelper.
+ * @return A pointer to the structure storing the sequence of numbers
+ *         or NULL in case of memory allocation failure.
+ */
 PhoneNumbers * reverseHelper(PhoneForward const * pf,
                             char const *num, bool isGetReverse) {
     if (!pf) {
