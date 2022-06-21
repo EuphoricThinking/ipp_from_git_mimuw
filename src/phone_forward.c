@@ -274,7 +274,8 @@ static bool isForwardSet(uint8_t flag) {
  * @param[in] ancestor - a parental node of the initialized node.
  * @param[in] depth - depth of the level at which the node is supposed to be
  *                    assigned to the tree
- * @param edgeLeadingTo - the label of the edge leading to the initialized node
+ * @param[in] edgeLeadingTo - the label of the edge leading to the initialized
+ *                            node
  *
  * @return An initialized node or NULL in case of memory allocation failure.
  */
@@ -309,7 +310,8 @@ static InitialNode * initInitialNode(InitialNode* ancestor, uint64_t depth,
  * @param[in] ancestor - a parental node of the initialized node.
  * @param[in] depth - depth of the level at which the node is supposed to be
  *                    assigned to the tree
- * @param edgeLeadingTo - the label of the edge leading to the initialized node
+ * @param[in] edgeLeadingTo - the label of the edge leading to the initialized
+ *                            node
  *
  * @return An initialized node or NULL in case of memory allocation failure.
  */
@@ -472,7 +474,7 @@ static bool addPrefixInitialAndSetForward(InitialNode * init,
 /** @brief Evaluates alphabetical compatibility of the given character.
  * Checks whether the given character belongs to the alphabet of phone numbers.
  *
- * @param c - the character to be validated.
+ * @param[in] c - the character to be validated.
  * @return @p True if the character belongs to the phone numbers alphabet,
  * @p false otherwise.
  */
@@ -644,7 +646,7 @@ static void removeForwardedNode(ForwardedNode * toDelete) {
  *  Removes unnecessary nodes from a tree: nodes which are not on the path
  *  ending with a node regarded as terminal for the given prefix.
  *
- * @param currentForward - a node responsible for storing data about
+ * @param[in, out] currentForward - a node responsible for storing data about
  *                         the final prefix, which starts the chain of nodes
  *                         removal.
  */
@@ -713,7 +715,7 @@ static void removeInitialNode(InitialNode* init) {
  *  Removes unnecessary nodes from a tree: nodes which are not on the path
  *  ending with a node regarded as terminal for the given prefix.
  *
- * @param currentInitial - a node responsible for storing data about
+ * @param[in, out] currentInitial - a node responsible for storing data about
  *                         the redirected prefix, which starts the chain of
  *                         nodes removal.
  */
