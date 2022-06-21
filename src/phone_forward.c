@@ -1295,13 +1295,29 @@ PhoneNumbers * reverseHelper(PhoneForward const * pf,
         return result;
     }
 
-    result->numbers[0] = strdup(num);
+    if (!isGetReverse || isResultingFromGet(num, num, pf)) {
+        result->numbers[0] = strdup(num);
 
-    if (!result->numbers[0]) {
-        phnumDelete(result);
+        if (!result->numbers[0]) {
+            phnumDelete(result);
 
-        return NULL;
+            return NULL;
+        }
     }
+    else {
+//        if (isResultingFromGet(num, num, pf)) {
+//            result->numbers[0] = strdup(num);
+//        }
+//        else {
+            result->lastAvailableIndex = 0;
+//        }
+    }
+
+//    if (!result->numbers[0]) {
+//        phnumDelete(result);
+//
+//        return NULL;
+//    }
 
     size_t depth = 0;
     ForwardedNode *currentForward = pf->forwardedRoot;
