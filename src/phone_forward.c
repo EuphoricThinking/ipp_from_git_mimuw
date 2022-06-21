@@ -1036,21 +1036,23 @@ static void sortCharArray(char** array, size_t numMembersToCompare) {
     qsort(array, numMembersToCompare, sizeof(char *), comparatorStrings);
 }
 
-static bool ifResultsFromGet(const void * reconstructionResult,
+static bool isResultingFromGet(const void * reconstructionResult,
                              const void * reverseInput,
                              PhoneForward const * pf){
     PhoneNumbers * getResult = phfwdGet(pf, reconstructionResult);
+    char const * resultGetNumber = phnumGet(getResult, 0);
+    bool isFromGet = true;
 
-    if (!getResult || customStrcmp(* (char * const *) reconstructionResult,
-                                   * (char * const *) reverseInput) != 0) {
-        return false;
+    if (!resultGetNumber || customStrcmp(* (char * const *) resultGetNumber,
+                                     * (char * const *) reverseInput) != 0) {
+        isFromGet = false;
     }
-    else {
-        return true;
-    }
+
+    phnumDelete(getResult);
+
+    return isFromGet;
 }
 
-//TODO uzupełnij
 /** @brief Adding new number to PhoneNumbers.
  * Adds the number to the set of numbers reconstructed in
  * @ref recreateOriginalPhoneNumbers. Reallocates memory of the result structure
@@ -1196,12 +1198,17 @@ static void removeDuplicateNumbersAfterQsort(PhoneNumbers* sorted) {
  * @param[in] arrayLength - the length of the phone number after forwarding.
  * @param[in] num - the phone number after forwarding
  * @param[in, out] results - the structure storing reconstructed phone numbers.
+ * @param[in] isGetReverse - indicates whether the helper function should
+ *                           proceed as for phfwdGetReverse.
+ * @param[in] pf - a pointer to the structure storing number redirections.
  * @return @p False in case of memory allocation failure, @p true otherwise.
  */
 static bool recreateOriginalPhoneNumbers(ForwardedNode* finalRedirection,
                                          size_t arrayLength,
                                          char const * num,
-                                         PhoneNumbers * results) {
+                                         PhoneNumbers * results,
+                                         bool isGetReverse,
+                                         PhoneForward const * pf) {
     InitialNode * originalNumber;
     size_t redirectedPrefixLength = finalRedirection->depth;
     size_t resultingSuffixLength = arrayLength - redirectedPrefixLength;
@@ -1224,8 +1231,15 @@ static bool recreateOriginalPhoneNumbers(ForwardedNode* finalRedirection,
                     num + redirectedPrefixLength, resultingSuffixLength);
             newNumber[resultingLength - 1] = '\0';
 
-            if (!addReversedNumber(results, newNumber)) {
-                return false;
+            if (isGetReverse && isResultingFromGet(newNumber, num, pf)) {
+                if (!addReversedNumber(results, newNumber)) {
+                    return false;
+                }
+            }
+            else if (!isGetReverse) {
+                if (!addReversedNumber(results, newNumber)) {
+                    return false;
+                }
             }
         }
     }
@@ -1233,31 +1247,14 @@ static bool recreateOriginalPhoneNumbers(ForwardedNode* finalRedirection,
     return true;
 }
 
-/** @brief Assigns a redirection to the given number.
- * Assigns the following sequence of numbers to the given number: if there
- * exists a number @p x such that its prefix can be redirected to the
- * prefix of @p num, then the number @p x belongs to the set returned from
- * @ref phfwdReverse with the number @p num. @ref phfwdGet may not return @p num
- * with passed number @p x, since @ref phfwdReverse checks all possible prefixes
- * and includes @p num, not limiting the set to the longest possible.
- * The resulting numbers are sorted lexicographically and they must not repeat
- * in the returned set. If the given string does not represent a number
- * the result is an empty sequence. Allocates a structure @p PhoneNumbers,
- * which should be freed using the function @ref phnumDelete.
- *
- * @param[in] pf - a pointer to the structure storing number redirections;
- * @param[in] num - a pointer to the string representing a number.
- * @return A pointer to the structure storing the sequence of numbers
- *         or NULL in case of memory allocation failure.
- */
 PhoneNumbers * reverseHelper(PhoneForward const * pf,
-                            char const *num) {
+                            char const *num, bool isGetReverse) {
     if (!pf) {
         return NULL;
     }
 
     size_t len = checkLength(num);
-    PhoneNumbers * result = createNewPhoneNumbers();
+    PhoneNumbers *result = createNewPhoneNumbers();
 
     if (!result) {
         return NULL;
@@ -1276,7 +1273,7 @@ PhoneNumbers * reverseHelper(PhoneForward const * pf,
     }
 
     size_t depth = 0;
-    ForwardedNode * currentForward = pf->forwardedRoot;
+    ForwardedNode *currentForward = pf->forwardedRoot;
     bool isPossibleToPass = true;
     int digit;
     while (depth < len && isPossibleToPass && currentForward) {
@@ -1284,8 +1281,8 @@ PhoneNumbers * reverseHelper(PhoneForward const * pf,
 
         if (isForwardSet(currentForward->isForwarding)) {
             // Add number to phoneNumbers
-            if (!recreateOriginalPhoneNumbers(currentForward,
-                                              len, num, result)) {
+            if (!recreateOriginalPhoneNumbers(currentForward, len, num, result,
+                                              isGetReverse, pf)) {
                 phnumDelete(result);
 
                 return NULL;
@@ -1295,16 +1292,15 @@ PhoneNumbers * reverseHelper(PhoneForward const * pf,
         if (currentForward->alphabet[digit]) {
             currentForward = currentForward->alphabet[digit];
             depth++;
-        }
-        else {
+        } else {
             isPossibleToPass = false;
         }
     }
 
     //Check the last one
     if (currentForward && isForwardSet(currentForward->isForwarding)) {
-        if (!recreateOriginalPhoneNumbers(currentForward,
-                                          len, num, result)) {
+        if (!recreateOriginalPhoneNumbers(currentForward, len, num, result,
+                                          isGetReverse, pf)) {
             phnumDelete(result);
 
             return NULL;
@@ -1315,4 +1311,28 @@ PhoneNumbers * reverseHelper(PhoneForward const * pf,
     removeDuplicateNumbersAfterQsort(result);
 
     return result;
+}
+/** @brief Assigns a redirection to the given number.
+ * Assigns the following sequence of numbers to the given number: if there
+ * exists a number @p x such that its prefix can be redirected to the
+ * prefix of @p num, then the number @p x belongs to the set returned from
+ * @ref phfwdReverse with the number @p num. @ref phfwdGet may not return @p num
+ * with passed number @p x, since @ref phfwdReverse checks all possible prefixes
+ * and includes @p num, not limiting the set to the longest possible.
+ * The resulting numbers are sorted lexicographically and they must not repeat
+ * in the returned set. If the given string does not represent a number
+ * the result is an empty sequence. Allocates a structure @p PhoneNumbers,
+ * which should be freed using the function @ref phnumDelete.
+ *
+ * @param[in] pf - a pointer to the structure storing number redirections;
+ * @param[in] num - a pointer to the string representing a number.
+ * @return A pointer to the structure storing the sequence of numbers
+ *         or NULL in case of memory allocation failure.
+ */
+PhoneNumbers * phfwdReverse(PhoneForward const *pf, char const *num) {
+    return reverseHelper(pf, num, false);
+}
+
+PhoneNumbers * phfwdGetReverse(PhoneForward const *pf, char const *num) {
+    return reverseHelper(pf, num, true);
 }
