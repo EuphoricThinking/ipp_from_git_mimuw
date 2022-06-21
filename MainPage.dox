@@ -16,5 +16,7 @@ Presented documentation covers the part of the project related to handling the f
  - "final prefix", "final node" etc. - an adjective "final" refers mostly to the prefix to whom other prefixes are redirected.
  - for clarity, a word "string" is used as a name for "char array" in C.
 
-Additionally, the alphabet of phone numbers has been extended from 0-9 digits to 0-11 numbers, including "*" as a representative of the number ten and "#" as a representative of the numbr eleven. Moreover, there is a possibility of constructing original numbers based on redirected number, but with limitations described in the annotation to the appropriate function.
+Additionally, the alphabet of phone numbers has been extended from 0-9 digits to 0-11 numbers, including "*" as a representative of the number ten and "#" as a representative of the number eleven. Moreover, there is a possibility of constructing original numbers based on redirected number, but with limitations described in the annotation to the appropriate function.
+
+Further extensions include unified erroneous input handling and addition of the function recreating the inverse image of the function responsible for redirections retrieval.
 */
