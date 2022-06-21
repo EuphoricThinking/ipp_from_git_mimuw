@@ -92,7 +92,7 @@ struct ForwardedNode;
  * @var InitialNode::edgeLeadingTo
  *      The label of the edge leading to the current node, equivalent to
  *      the index value in \link InitialNode::alphabet alphabet array \endlink
- *      of the parent.
+ *      of the parent. For root is -1.
  * @var InitialNode::lastChecked
  *      The index of the last checked element in \link InitialNode::alphabet
  *      alphabet array \endlink, used in the iterative tree traversal.
@@ -109,7 +109,7 @@ typedef struct InitialNode {
     uint8_t isForwarded;
     uint64_t indexForward;
     uint8_t filledEdges;
-    int edgeLeadingTo;
+    int edgeLeadingTo; // For root is -1
     uint32_t lastChecked;
     char* initialPrefix;
 } InitialNode;  ///< Compound struct for storing data about redirected prefixes
@@ -148,7 +148,7 @@ typedef struct InitialNode {
  *  @var ForwardedNode::edgeLeadingTo
  *          The label of the edge leading to the current node, equivalent to
  *          the index value in \link ForwardedNode::alphabet alphabet array
- *          \endlink of the parent.
+ *          \endlink of the parent. For root is -1.
  *  @var ForwardedNode::lastChecked
  *          The index of the last checked element in \link
  *          ForwardedNode::alphabet alphabet array \endlink, used in the
@@ -177,7 +177,7 @@ typedef struct ForwardedNode {
     uint64_t sumForwarded;
     uint64_t depth;
     uint64_t numSlotsForNodes;
-    int edgeLeadingTo;
+    int edgeLeadingTo;  // For root is -1
     uint32_t lastChecked;
     InitialNode** forwardedNodes;
     char* forwardedPrefix;
