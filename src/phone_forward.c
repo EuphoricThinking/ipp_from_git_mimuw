@@ -1272,7 +1272,7 @@ static bool recreateOriginalPhoneNumbers(ForwardedNode* finalRedirection,
 }
 
 /** @brief Creates phfwdGetReverse or phwfdReverse output.
- * A helper function which creates the full result of @ref phtwdGetReverse
+ * A helper function which creates the full result of @ref phfwdGetReverse
  * or @ref phfwdReverse, according to the passed parameter, indicating which
  * function has called reverseHelper.
  *
