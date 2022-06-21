@@ -1251,13 +1251,22 @@ static bool recreateOriginalPhoneNumbers(ForwardedNode* finalRedirection,
                     num + redirectedPrefixLength, resultingSuffixLength);
             newNumber[resultingLength - 1] = '\0';
 
-            if (isGetReverse && isResultingFromGet(newNumber, num, pf)) {
-                if (!addReversedNumber(results, newNumber)) {
-                    return false;
+            if (isGetReverse) {
+                if (!isResultingFromGet(newNumber, num, pf)) {
+                    free(newNumber);
+                }
+                else {
+                    if (!addReversedNumber(results, newNumber)) {
+                        free(newNumber);
+
+                        return false;
+                    }
                 }
             }
             else if (!isGetReverse) {
                 if (!addReversedNumber(results, newNumber)) {
+                    free(newNumber);
+
                     return false;
                 }
             }
